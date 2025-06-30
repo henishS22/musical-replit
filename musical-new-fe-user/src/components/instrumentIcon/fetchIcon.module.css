@@ -1,0 +1,8 @@
+.badgeInstruments {
+	display: flex;
+	align-items: center;
+}
+
+.badgeInstruments p {
+	margin-left: 8px !important;
+}

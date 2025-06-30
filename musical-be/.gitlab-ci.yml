@@ -1,0 +1,58 @@
+image: node:16-alpine
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - api-gateway/.npm/
+
+default: 
+  before_script:  
+    - cd api-gateway
+
+stages: 
+  - prepare
+  - build
+  - test
+
+prepare-job:
+  stage: prepare
+  script:
+    - |
+      echo >&2 '========================================================================================='
+      echo >&2 "🔧 Install packages..."
+      echo >&2 '========================================================================================='
+    - npm ci --cache .npm --prefer-offline --no-progress --loglevel=error --legacy-peer-deps
+    - echo "Execute Lint..." 
+    - npm run lint
+  artifacts: 
+    paths:
+      - api-gateway/node_modules/
+
+build-job: 
+  stage: build
+  needs: 
+    - job: prepare-job
+      artifacts: true # get node_modules from artifacts
+  script:
+    - |
+      echo >&2 '========================================================================================='
+      echo >&2 "📦 Building project..."
+      echo >&2 '========================================================================================='
+    - npm run build:staging
+  artifacts:
+    paths:
+      - api-gateway/dist/ # storage results 
+
+test-job: 
+  stage: test 
+  needs:
+    - job: prepare-job
+      artifacts: true      # grabs folder node_modules
+    - job: build-job
+      artifacts: true      # grabs  built files  
+  script:
+    - |
+      echo >&2 '========================================================================================='
+      echo >&2 "🔬 Testing..."
+      echo >&2 '========================================================================================='
+    - npm run test

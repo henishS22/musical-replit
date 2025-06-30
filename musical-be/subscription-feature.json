@@ -1,0 +1,116 @@
+{
+  "features": [
+    {
+      "id": "storage",
+      "name": "Storage",
+      "description": "${limit} GB Encrypted Storage",
+      "not_available_description": "",
+      "unit": "GB",
+      "limit": true
+    },
+    {
+      "name": "AI Agent Tokens",
+      "id": "ai_agent_tokens",
+      "unit": "tokens",
+      "limit": true,
+      "description": "${limit} AI Agent Tokens",
+      "not_available_description": ""
+    },
+    {
+      "id": "project_and_collabs",
+      "name": "Project and Collabs",
+      "unit": "",
+      "limit": false,
+      "description": "Unlimited Projects and Collabs",
+      "not_available_description": ""
+    },
+    {
+      "id": "metadata_management",
+      "name": "Metadata Management",
+      "unit": "",
+      "limit": false,
+      "description": "Metadata Management",
+      "not_available_description": ""
+    },
+    {
+      "id": "chat_and_livestream",
+      "name": "Chat and Livestream",
+      "unit": "",
+      "limit": false,
+      "description": "Chat and Livestream",
+      "not_available_description": ""
+    },
+    {
+      "id": "fan_gamification",
+      "name": "Fan Gamification",
+      "unit": "",
+      "limit": false,
+      "description": "Fan Gamification",
+      "not_available_description": "Fan Gamification"
+    },
+    {
+      "id": "social_management_suite",
+      "name": "Social Management Suite",
+      "unit": "",
+      "limit": false,
+      "description": "Social Management Suite",
+      "not_available_description": "Basic Social Posts"
+    },
+    {
+      "id": "musicgen",
+      "name": "MusicGen from Meta",
+      "unit": "",
+      "limit": false,
+      "description": "MusicGen from Meta",
+      "not_available_description": ""
+    },
+    {
+      "id": "nft_minting",
+      "name": "NFT Minting",
+      "unit": "",
+      "limit": false,
+      "description": "NFT Minting",
+      "not_available_description": ""
+    },
+    {
+      "id": "earn_reward_notes",
+      "name": "Earn Reward NOTEs",
+      "unit": "",
+      "limit": false,
+      "description": "Earn Reward NOTEs",
+      "not_available_description": ""
+    },
+    {
+      "id": "fan_messaging",
+      "name": "Social AI Message Management (Unlimited).",
+      "unit": "",
+      "limit": false,
+      "description": "Unlimited Messaging (IG, FB, X)",
+      "not_available_description": "No Fan Messaging"
+    },
+    {
+      "id": "ai_video",
+      "name": "AI Video Generation",
+      "unit": "mins/mo",
+      "limit": true,
+      "description": "AI Video Generation - ${limit} mins/mo",
+      "not_available_description": "No AI Video Generation"
+    },
+    {
+      "id": "streaming",
+      "name": "Streaming Distro",
+      "unit": "",
+      "limit": false,
+      "description": "Streaming Distro upon approval",
+      "not_available_description": "No Streaming Distro"
+    },
+    {
+      "id": "ads_management",
+      "name": "Ads Management",
+      "unit": "",
+      "limit": false,
+      "description": "Ad Management upon approval",
+      "not_available_description": "No Ads Management"
+    }
+  ]
+}

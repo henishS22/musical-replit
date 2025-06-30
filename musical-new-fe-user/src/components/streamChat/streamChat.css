@@ -1,0 +1,9 @@
+.chatPopup {
+	.str-chat__main-panel-inner {
+		height: 460px !important;
+	}
+
+	.str-chat__edit-message-form-options {
+		gap: 10px !important;
+	}
+}

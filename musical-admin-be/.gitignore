@@ -1,0 +1,10 @@
+/node_modules
+.history/
+/logs
+/src/keys
+.env
+/build
+.vscode/
+/.idea
+/keys
+package-lock.json

@@ -1,0 +1,607 @@
+/* eslint-disable import/prefer-default-export */
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+import Switch from "@material-ui/core/Switch";
+
+export const useStyles = makeStyles((theme) => ({
+  closeButton: {
+    display: "flex",
+    flexDirection: "row-reverse",
+  },
+  mainBox: {
+    marginTop: "-60px",
+  },
+  onHover: {
+    cursor: "pointer",
+  },
+  inputHeight: {
+    paddingLeft: "15px",
+  },
+  sendButton: {
+    textAlignLast: "end",
+    color: "white",
+    background: `linear-gradient(175.57deg, #1db653 3.76%, #0e5828 96.59%)`,
+    border: "none",
+    borderRadius: "108px",
+    width: "94%",
+    "&:hover": {
+      backgroundColor: "#00FF47",
+      color: "#000000",
+    },
+  },
+  sendButton1: {
+    color: "white",
+    background: `linear-gradient(175.57deg, #1db653 3.76%, #0e5828 96.59%)`,
+    border: "none",
+    borderRadius: "108px",
+    width: "150px",
+    height: "40px",
+    cursor: "pointer",
+    fontSize: "16px",
+    "&:hover": {
+      backgroundColor: "#00FF47",
+      color: "#000000",
+    },
+  },
+  confirmationModalButton1: {
+    width: "155px !important",
+    height: "40px !important",
+    fontWeight: "550 !important",
+    color: "black !important",
+    boxShadow: "none !important",
+    fontSize: "14px !important",
+  },
+  confirmationModalButton2: {
+    width: "155px !important",
+    height: "40px !important",
+    fontWeight: "550 !important",
+    boxShadow: "none !important",
+    fontSize: "14px !important",
+    background: `linear-gradient(175.57deg, #1db653 3.76%, #0e5828 96.59%) !important`,
+    border: "none !important",
+    color: "white !important",
+  },
+  img: {
+    marginLeft: "34%",
+    height: "94px",
+    width: "145px",
+    display: "flex",
+    marginTop: "20%",
+  },
+  connectedImg: {
+    marginLeft: "28%",
+    height: "150px",
+    width: "200px",
+    display: "flex",
+    marginTop: "10%",
+  },
+  img2: {
+    marginLeft: "43%",
+    height: "67px",
+    width: "67px",
+    display: "flex",
+    marginTop: "20%",
+  },
+  heading: {
+    color: "black",
+    fontWeight: "bold",
+    // fontFamily: 'Circular Std',
+    fontSize: "26px",
+    marginTop: "30px",
+    marginBottom: "10px",
+  },
+  subtitle: {
+    color: "black",
+    fontSize: "16px",
+    fontWeight: "550",
+    marginTop: "5px",
+    marginBottom: "30px",
+  },
+  dialogPaper: {
+    minHeight: "410px",
+    maxHeight: "425px",
+    maxWidth: "500px",
+    minWidth: "500px",
+    alignContent: "center",
+    justifyContent: "center",
+    borderRadius: "15px !important",
+  },
+  dialogContext: {
+    padding: "8px 0px",
+  },
+  dialogContext1: {
+    padding: "0px 0px !important",
+  },
+  topBar: {
+    display: "flex",
+    justifyContent: "center",
+    height: "70px",
+    borderBottom: "1px solid #00000026",
+    alignItems: "center",
+  },
+  topBar2: {
+    display: "flex",
+    justifyContent: "center",
+    height: "70px",
+    borderBottom: "1px solid #00000026",
+    position: "sticky",
+    top: 0,
+    background: "white",
+    zIndex: 500,
+  },
+  topBar1: {
+    display: "flex",
+    justifyContent: "center",
+    height: "70px",
+  },
+  closeBtn: {
+    position: "absolute",
+    right: "40px",
+    top: "40px",
+  },
+  closeBtnPass: {
+    position: "absolute",
+    right: "28px",
+    top: "28px",
+  },
+  closeBtn1: {
+    position: "absolute",
+    right: "40px",
+    top: "30px",
+  },
+  otpInput: {
+    marginRight: "10px",
+    height: "40px",
+    width: "46px !important",
+    marginTop: "0px",
+    border: "1px solid #CCCCCC",
+    borderRadius: "4px",
+  },
+  dialogPaper1: {
+    minHeight: "265px",
+    maxHeight: "350px",
+    maxWidth: "500px",
+    minWidth: "500px",
+    borderRadius: "15px !important",
+    [theme.breakpoints.down("xs")]: {
+      minHeight: "150px",
+      maxHeight: "350px",
+      maxWidth: "400px",
+      minWidth: "350px",
+    },
+  },
+  text1: {
+    fontWeight: "bold",
+    fontSize: "22px",
+    textAlign: "center",
+    marginTop: "-10px",
+  },
+  dataBox: {
+    padding: "20px 50px",
+    marginBottom: "50px",
+  },
+  dialogPaper5: {
+    minHeight: "265px",
+    maxHeight: "600px",
+    maxWidth: "900px",
+    minWidth: "800px",
+    borderRadius: "15px !important",
+    [theme.breakpoints.down("xs")]: {
+      minHeight: "150px",
+      maxHeight: "350px",
+      maxWidth: "400px",
+      minWidth: "350px",
+    },
+  },
+  dialogPaper2: {
+    minHeight: "265px",
+    maxHeight: "550px",
+    maxWidth: "500px",
+    minWidth: "500px",
+    borderRadius: "15px !important",
+    [theme.breakpoints.down("xs")]: {
+      minHeight: "150px",
+      maxHeight: "350px",
+      maxWidth: "400px",
+      minWidth: "350px",
+    },
+  },
+  dialogPaper3: {
+    minHeight: "300px",
+    maxHeight: "350px",
+    maxWidth: "450px",
+    minWidth: "450px",
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    borderRadius: "15px !important",
+    [theme.breakpoints.down("xs")]: {
+      minHeight: "150px",
+      maxHeight: "350px",
+      maxWidth: "400px",
+      minWidth: "350px",
+    },
+  },
+  dFlex: {
+    display: "flex",
+  },
+  dFlex2: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  dFlex3: {
+    display: "flex",
+    marginTop: "30px",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dFlex4: {
+    display: "flex",
+    width: "70%",
+  },
+  darkBack: {
+    backgroundColor: "black !important",
+    color: "white !important",
+  },
+  width100: {
+    width: "100%",
+    // backgroundColor: '#E5E5E5',
+    marginTop: "25px !important",
+    height: "50px",
+    padding: "0px !important",
+  },
+  formControl: {
+    width: "100%",
+    padding: "0px !important",
+    borderRadius: "20px",
+  },
+  colorWhite: {
+    color: "white !important",
+  },
+  placeHolder: {
+    "&::placeholder": {
+      color: "#606060",
+      lineHeight: "18px",
+      fontWeight: "540",
+      fontSize: "14px",
+      opacity: 1,
+    },
+  },
+  phoneContainer: {
+    marginTop: "-25px",
+    paddingLeft: "20px",
+    paddingRight: "20px",
+  },
+  inputHeight1: {
+    // backgroundColor: '#E5E5E5',
+    height: "50px",
+    borderRadius: "4px",
+    fontWeight: "550 !important",
+    color: "black",
+    fontSize: "14px",
+    borderTopLeftRadius: "0px !important",
+    borderBottomLeftRadius: "0px !important",
+    marginLeft: "-3px",
+    "&::placeholder": {
+      textOverflow: "ellipsis !important",
+      color: "black !important",
+    },
+  },
+  inputHeight2: {
+    // backgroundColor: '#E5E5E5',
+    height: "50px",
+    borderRadius: "4px",
+    fontWeight: "450 !important",
+    fontSize: "18px",
+    paddingLeft: "15px",
+    color: "black",
+    marginLeft: "-3px",
+    marginTop: "5px",
+    marginRight: "20px",
+    border: "1px solid grey",
+    "&::placeholder": {
+      textOverflow: "ellipsis !important",
+      color: "black !important",
+    },
+  },
+  inputHeight3: {
+    // backgroundColor: '#E5E5E5',
+    height: "50px",
+    borderRadius: "4px",
+    fontWeight: "550 !important",
+    color: "black",
+    width: "100%",
+    fontSize: "14px",
+    marginLeft: "-3px",
+    "&::placeholder": {
+      textOverflow: "ellipsis !important",
+      color: "black !important",
+    },
+  },
+  addButton: {
+    padding: "14px 20px",
+    marginRight: "15px",
+    borderRadius: "5px",
+    background: "linear-gradient(90deg, #70D99F 0%, #3D83B5 90%)",
+    fontSize: "18px",
+    color: "white",
+    border: "1px solid grey",
+    cursor: "pointer",
+  },
+  dialogPaper4: {
+    borderRadius: "15px !important",
+  },
+  BorderRadius: {
+    borderRadius: "4px !important",
+  },
+  title: {
+    fontWeight: "bold",
+    fontSize: "24px",
+    marginTop: "10px",
+  },
+  titleMob: {
+    fontWeight: "bold",
+    fontSize: "24px",
+  },
+  title1: {
+    fontWeight: "bold",
+    fontSize: "24px",
+    marginTop: "20px",
+  },
+  errorText: {
+    color: "red",
+    marginTop: "20px",
+    marginBottom: "-2vh",
+    textAlign: "center",
+    width: "100%",
+  },
+  errorText1: {
+    color: "red",
+    marginTop: "0px",
+    marginBottom: "10px",
+    textAlign: "center",
+    width: "100%",
+  },
+
+  // Platform variable styles
+  platformBox: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    paddingTop: "50px",
+    paddingBottom: "50px",
+  },
+  "@media screen and (max-width: 768px)": {
+    loginBox: {
+      width: "85%",
+    },
+    otpInput: {
+      marginRight: "10px",
+      height: "2.9em",
+      width: "3em !important",
+      marginTop: "0px",
+    },
+  },
+  "@media screen and (max-width: 1024px)": {
+    loginBox1: {
+      padding: "30px",
+    },
+    otpInput: {
+      marginRight: "10px",
+      height: "3em",
+      width: "2.4em !important",
+      marginTop: "0px",
+    },
+  },
+  "@media screen and (width: 768px)": {
+    otpInput: {
+      marginRight: "10px",
+      height: "3em",
+      width: "2.9em !important",
+      marginTop: "0px",
+    },
+  },
+}));
+
+export const otpStyles = makeStyles({
+  app: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100vh",
+  },
+  loginBox: {
+    width: "25%",
+    height: "auto",
+    // border: '1px solid black',
+    display: "inherit",
+  },
+  loginBox1: {
+    height: "auto",
+    justifyContent: "center",
+    width: "450px",
+  },
+  heading1: {
+    fontSize: "40px",
+    fontWeight: "bold",
+    fontFamily: "Tomica",
+    fontStyle: "normal",
+    lineHeight: "51px",
+    alignItems: "left",
+  },
+  heading2: {
+    fontSize: "25px",
+    fontWeight: "bold",
+    fontFamily: "Tomica",
+    fontStyle: "normal",
+    lineHeight: "51px",
+    marginLeft: "0px",
+    paddingTop: "2px",
+  },
+  error: {
+    fontSize: "16px",
+    // fontWeight: 'bold',
+    // fontFamily: 'Circular Std',
+    fontStyle: "normal",
+    lineHeight: "51px",
+    color: "red",
+    fontWeight: "bold",
+    marginLeft: "0px",
+    marginTop: "0px",
+  },
+  heading3: {
+    fontSize: "28px",
+    fontWeight: "bold",
+    // fontFamily: 'Circular Std',
+    fontStyle: "normal",
+    lineHeight: "51px",
+  },
+  heading4: {
+    fontSize: "18px",
+    fontWeight: "bold",
+    // fontFamily: 'Circular Std',
+    fontStyle: "normal",
+    lineHeight: "28px",
+    marginTop: "2vh",
+    marginBottom: "3vh",
+  },
+  displayFlex: {
+    display: "flex",
+  },
+  displayFlex1: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  width100: {
+    width: "100%",
+  },
+  loginForm: {
+    paddingTop: "10px",
+    width: "100%",
+  },
+  inputHeight: {
+    "& input": {
+      height: "1vh",
+    },
+    "&::placeholder": {
+      color: "#ffff",
+      lineHeight: "18px",
+      fontWeight: "540",
+      fontSize: "14px",
+      opacity: 1,
+    },
+  },
+  marginTop: {
+    marginTop: "20px",
+  },
+  loginBtn: {
+    top: "20px",
+    color: "white",
+    height: "40px",
+    background: `linear-gradient(175.57deg, #1db653 3.76%, #0e5828 96.59%)`,
+    border: "none",
+  },
+  otpInput: {
+    marginRight: "25px",
+    height: "45px",
+    width: "60px !important",
+    marginTop: "20px",
+    border: "1px solid #CCCCCC",
+    borderRadius: "4px",
+  },
+  otpInput1: {
+    marginRight: "25px",
+    height: "40px",
+    width: "50px !important",
+    marginTop: "20px",
+    border: "1px solid #CCCCCC",
+    borderRadius: "4px",
+  },
+  errorText: {
+    color: "red",
+    marginTop: "1vh",
+    marginBottom: "-2vh",
+  },
+  placeHolder: {
+    "&::placeholder": {
+      color: "#606060",
+      lineHeight: "18px",
+      fontWeight: "540",
+      fontSize: "14px",
+      opacity: 1,
+    },
+  },
+  "@media screen and (max-width: 768px)": {
+    loginBox: {
+      width: "85%",
+    },
+    otpInput: {
+      marginRight: "20px",
+      height: "2.9em",
+      width: "3em !important",
+      marginTop: "20px",
+    },
+  },
+  "@media screen and (max-width: 1024px)": {
+    loginBox1: {
+      padding: "30px",
+    },
+    otpInput: {
+      marginRight: "20px",
+      height: "3em",
+      width: "2.4em !important",
+      marginTop: "20px",
+    },
+  },
+  "@media screen and (width: 768px)": {
+    otpInput: {
+      marginRight: "20px",
+      height: "3em",
+      width: "2.9em !important",
+      marginTop: "20px",
+    },
+  },
+});
+
+export const SwitchStyles1 = withStyles(() => ({
+  root: {
+    width: 45,
+    height: 23,
+    padding: 0,
+    marginTop: "0px",
+    marginRight: "30px",
+    borderRadius: "20px",
+    display: "flex",
+  },
+  switchBase: {
+    padding: 2,
+    color: "#747478",
+    "&$checked": {
+      transform: "translateX(24px)",
+      color: "#27AE60",
+      "& + $track": {
+        opacity: 1,
+        backgroundColor: "#E0DFE8",
+        borderColor: "#E0DFE8",
+      },
+    },
+    "&$checked + $track": {
+      backgroundColor: "#E0DFE8",
+    },
+  },
+  thumb: {
+    width: 17,
+    height: 17,
+    boxShadow: "none",
+    marginTop: "0.1rem",
+  },
+  track: {
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: "#E0DFE8",
+  },
+  checked: {},
+}))(Switch);
