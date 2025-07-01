@@ -1,49 +1,98 @@
+
 "use client"
 
 import React from "react"
 import { useInView } from "react-intersection-observer"
-import { useInfiniteQuery } from "@tanstack/react-query"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 import { fetchGuildedNfts } from "@/app/api/query"
-import { LoadingSkeleton } from "@/components/marketplace/LoadingSkeleton"
-import NFTCard from "@/components/profile/tokenTab/NftCard"
+import { generateQueryParams } from "@/helpers"
+import { Button, Skeleton, Card, CardBody, CardFooter } from "@nextui-org/react"
+import { useInfiniteQuery } from "@tanstack/react-query"
+
+import { NoDataFound } from "../ui"
+
+const GuildedNFTSkeleton = () => (
+	<Card className="w-full">
+		<CardBody className="p-0">
+			<Skeleton className="rounded-lg w-full h-48" />
+		</CardBody>
+		<CardFooter className="flex flex-col items-start gap-2 p-4">
+			<Skeleton className="h-4 w-3/4 rounded-lg" />
+			<Skeleton className="h-3 w-1/2 rounded-lg" />
+			<Skeleton className="h-6 w-20 rounded-lg" />
+		</CardFooter>
+	</Card>
+)
 
 interface GuildedNFTProps {
+	onViewAll?: (section: string) => void
 	showAll?: boolean
-  onViewAll?: (section: string) => void
 }
 
-const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) => {
-	const { ref, inView } = useInView()
+const GuildedNFT: React.FC<GuildedNFTProps> = ({
+	onViewAll,
+	showAll = false
+}) => {
+	const router = useRouter()
+	const { ref: loadMoreRef, inView } = useInView()
 
-	const {
-		data,
-		isLoading,
-		isError,
-		fetchNextPage,
-		hasNextPage,
-		isFetchingNextPage
-	} = useInfiniteQuery({
-		queryKey: ["guildedNfts"],
-		queryFn: ({ pageParam = 1 }) => {
-			const queryParams = `?page=${pageParam}&limit=${showAll ? 20 : 6}&isListed=true`
-			return fetchGuildedNfts(queryParams)
-		},
-		getNextPageParam: (lastPage, allPages) => {
-			if (!lastPage?.pagination) return undefined
-			const { page, pages } = lastPage.pagination
-			return page < pages ? page + 1 : undefined
-		},
-		initialPageParam: 1
-	})
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
+		useInfiniteQuery({
+			queryKey: ["guilded-nfts"],
+			queryFn: async ({ pageParam = 1 }) => {
+				const url = generateQueryParams({
+					page: pageParam,
+					limit: showAll ? 12 : 8,
+					isListed: true
+				})
+				return fetchGuildedNfts(url)
+			},
+			initialPageParam: 1,
+			getNextPageParam: (lastPage) => {
+				const totalItems = lastPage?.pagination?.total || 0
+				const currentPage = lastPage?.pagination?.page || 1
+				const limit = lastPage?.pagination?.limit || 8
+				const nextPage = currentPage + 1
+				return currentPage * limit < totalItems ? nextPage : undefined
+			},
+			staleTime: 1000 * 60 * 5, // 5 minutes
+			retry: 2
+		})
+
+	// Only flatten all pages if showAll, otherwise just take first batch from first page
+	const guildedNfts = React.useMemo(() => {
+		if (showAll) {
+			return data?.pages.flatMap((page) => page?.data ?? []) || []
+		}
+		return data?.pages?.[0]?.data?.slice(0, 8) || []
+	}, [data, showAll])
 
 	React.useEffect(() => {
-		if (inView && hasNextPage && !isFetchingNextPage) {
+		if (showAll && inView && hasNextPage && !isFetchingNextPage) {
 			fetchNextPage()
 		}
-	}, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+	}, [showAll, inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  if (isError) {
+	const handleNftClick = (nftId: string) => {
+		router.push(`/buy-nft/${nftId}`)
+	}
+
+	const formatPrice = (nft: any) => {
+		if (nft.ethereumPrice) {
+			return `${nft.ethereumPrice.toFixed(4)} ETH`
+		}
+		if (nft.maticPrice) {
+			return `${nft.maticPrice.toFixed(4)} MATIC`
+		}
+		if (nft.price) {
+			return `$${nft.price}`
+		}
+		return "$499"
+	}
+
+	if (error) {
 		return (
 			<div className="flex flex-col gap-4">
 				<div className="flex items-center justify-between">
@@ -51,84 +100,98 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) =
 						Guild Passes
 					</h2>
 					{onViewAll && (
-						<button
-							onClick={() => onViewAll("Guild Passes")}
+						<Button
+							onPress={() => onViewAll("Guild Passes")}
+							type="submit"
 							className="px-5 py-3 gap-2 rounded-lg bg-btnColor text-white font-bold text-[15px]"
 						>
 							View All
-						</button>
+						</Button>
 					)}
 				</div>
 				<div className="w-full">
-					<p className="text-gray-500">Failed to load Guild Passes</p>
+					<NoDataFound message="Failed to load Guild Passes. Please try again later." />
 				</div>
 			</div>
-		)
-	}
-
-	const allNfts = data?.pages?.flatMap((page) => page?.data || []) || []
-
-	if (allNfts.length === 0) {
-		return (
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary">
-            Guild Passes
-          </h2>
-          {onViewAll && (
-            <button
-              onClick={() => onViewAll("Guild Passes")}
-              className="px-5 py-3 gap-2 rounded-lg bg-btnColor text-white font-bold text-[15px]"
-            >
-              View All
-            </button>
-          )}
-        </div>
-				<div className="text-center py-8">
-					<p className="text-gray-500">No Guild Passes available</p>
-				</div>
-      </div>
 		)
 	}
 
 	return (
-		<div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary">
-          Guild Passes
-        </h2>
-        {onViewAll && (
-          <button
-            onClick={() => onViewAll("Guild Passes")}
-            className="px-5 py-3 gap-2 rounded-lg bg-btnColor text-white font-bold text-[15px]"
-          >
-            View All
-          </button>
-        )}
-      </div>
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				{isLoading ? (
-          Array.from({ length: showAll ? 9 : 6 }).map((_, index) => (
-					  <LoadingSkeleton key={index} />
-				  ))
-        ) : (
-          allNfts.map((nft, index) => (
-            <NFTCard
-              key={`${nft._id}-${index}`}
-              nft={nft}
-              showPrice={true}
-              onCardClick={() => {
-                // Handle NFT card click
-              }}
-            />
-          ))
-        )}
+		<div className="flex flex-col gap-4">
+			<div className="flex items-center justify-between">
+				<h2 className="font-semibold text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary">
+					Guild Passes
+				</h2>
+				{onViewAll && guildedNfts.length > 0 && (
+					<Button
+						onPress={() => onViewAll("Guild Passes")}
+						type="submit"
+						className="px-5 py-3 gap-2 rounded-lg bg-btnColor text-white font-bold text-[15px]"
+					>
+						View All
+					</Button>
+				)}
 			</div>
-
-			{/* Loading indicator for infinite scroll */}
-			{(hasNextPage || isFetchingNextPage) && (
-				<div ref={ref} className="flex justify-center py-4">
-					{isFetchingNextPage && <LoadingSkeleton />}
+			
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+				{isLoading ? (
+					Array.from({ length: showAll ? 12 : 8 }).map((_, index) => (
+						<GuildedNFTSkeleton key={index} />
+					))
+				) : guildedNfts.length > 0 ? (
+					guildedNfts.map((nft: any, index: number) => (
+						<Card 
+							key={nft._id || index}
+							className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"
+							isPressable
+							onPress={() => handleNftClick(nft._id)}
+						>
+							<CardBody className="p-0">
+								<Image
+									src={nft.artworkUrl || "/next.svg"}
+									alt={nft.title || "Guild Pass"}
+									width={300}
+									height={200}
+									className="w-full h-48 object-cover rounded-t-lg"
+									priority={index < 4}
+								/>
+							</CardBody>
+							<CardFooter className="flex flex-col items-start gap-2 p-4">
+								<h3 className="font-semibold text-[14px] leading-[19.12px] tracking-[-0.02em] text-black line-clamp-1">
+									{nft.title || "Untitled Guild Pass"}
+								</h3>
+								{nft.user_array?.[0]?.name && (
+									<p className="text-sm text-gray-600 line-clamp-1">
+										by {nft.user_array[0].name}
+									</p>
+								)}
+								<div className="flex items-center justify-between w-full">
+									<span className="text-sm font-medium text-btnColor">
+										{formatPrice(nft)}
+									</span>
+									{nft.tokenId && (
+										<span className="text-xs text-gray-500">
+											#{nft.tokenId}
+										</span>
+									)}
+								</div>
+							</CardFooter>
+						</Card>
+					))
+				) : (
+					<div className="w-full col-span-full">
+						<NoDataFound message="No Guild Passes available at the moment" />
+					</div>
+				)}
+			</div>
+			
+			{showAll && hasNextPage && (
+				<div ref={loadMoreRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+					{isFetchingNextPage && (
+						Array.from({ length: 4 }).map((_, index) => (
+							<GuildedNFTSkeleton key={`loading-${index}`} />
+						))
+					)}
 				</div>
 			)}
 		</div>
