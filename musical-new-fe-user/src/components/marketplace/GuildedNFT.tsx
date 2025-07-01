@@ -10,14 +10,12 @@ import { generateQueryParams } from "@/helpers"
 import { Button, Skeleton, Card, CardBody, CardFooter } from "@nextui-org/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 
-import { fetchGuildedNfts } from "@/app/api/query"
+import { NoDataFound } from "../ui"
 
 interface GuildedNFTProps {
 	showAll?: boolean
 	onViewAll?: (section: string) => void
 }
-
-import { NoDataFound } from "../ui"
 
 const GuildedNFTSkeleton = () => (
 	<Card className="w-full">
