@@ -116,11 +116,11 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) =
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="flex items-center justify-between">
-				<h2 className="font-semibold text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary">
+			<div className="flex flex-wrap gap-10 justify-between items-center w-full max-md:max-w-full">
+				<div className="self-stretch my-1 font-semibold text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary">
 					Guild Passes
-				</h2>
-				{onViewAll && (
+				</div>
+				{onViewAll && !showAll && (
 					<Button
 						onPress={() => onViewAll("Guild Passes")}
 						type="submit"
@@ -137,7 +137,7 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) =
 						<GuildedNFTSkeleton key={index} />
 					))
 				) : guildedNfts.length > 0 ? (
-					guildedNfts.map((nft: any, index: number) => (
+					guildedNfts.slice(0, showAll ? guildedNfts.length : 8).map((nft: any, index: number) => (
 						<Card 
 							key={nft._id || index}
 							className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"

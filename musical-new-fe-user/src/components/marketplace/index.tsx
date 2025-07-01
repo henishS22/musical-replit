@@ -11,11 +11,7 @@ const Marketplace = () => {
 	const [viewAllMode, setViewAllMode] = useState<string | null>(null)
 
 	const handleViewAll = (section: string) => {
-		if (section === "Guild Passes") {
-			router.push("/guild-passes")
-		} else {
-			setViewAllMode(section)
-		}
+		setViewAllMode(section)
 	}
 
 	const handleBack = () => {
