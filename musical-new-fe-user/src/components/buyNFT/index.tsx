@@ -15,31 +15,31 @@ const BuyNFTDetails: React.FC = () => {
 	const nftId = Array.isArray(id) ? id[0] : id
 	const [selectedTab, setSelectedTab] = useState("collectibles")
 
-	// First, fetch the regular NFT data to check if it's a Guild NFT
-	const { data: nftData, isLoading: isNftLoading, error: nftError } = useQuery({
-		queryKey: ["nft", nftId],
-		queryFn: () => fetchNftsById(nftId),
+	// First, try to fetch Guild NFT data to check if it's a Guild NFT
+	const { data: guildedNftData, isLoading: isGuildedLoading, error: guildedError } = useQuery({
+		queryKey: ["guilded-nft", nftId],
+		queryFn: () => fetchGuildedNftById(nftId),
 		enabled: !!nftId,
 		staleTime: 1000 * 60 * 5,
 		retry: 2
 	})
 
-	// Check if this is a Guild NFT
-	const isGuildedNFT = nftData?.isGuildedNFT === true
+	// Check if this is a Guild NFT based on the guilded-nft API response
+	const isGuildedNFT = guildedNftData?.isGuildedNFT === true
 
-	// Conditionally fetch Guild NFT data if it's a Guild NFT
-	const { data: guildedNftData, isLoading: isGuildedLoading, error: guildedError } = useQuery({
-		queryKey: ["guilded-nft", nftId],
-		queryFn: () => fetchGuildedNftById(nftId),
-		enabled: !!nftId && isGuildedNFT,
+	// Conditionally fetch regular NFT data if it's NOT a Guild NFT
+	const { data: nftData, isLoading: isNftLoading, error: nftError } = useQuery({
+		queryKey: ["nft", nftId],
+		queryFn: () => fetchNftsById(nftId),
+		enabled: !!nftId && !isGuildedNFT && !isGuildedLoading,
 		staleTime: 1000 * 60 * 5,
 		retry: 2
 	})
 
 	// Use the appropriate data source
 	const displayData = isGuildedNFT ? guildedNftData : nftData
-	const isLoading = isNftLoading || (isGuildedNFT && isGuildedLoading)
-	const error = nftError || (isGuildedNFT && guildedError)
+	const isLoading = isGuildedLoading || (!isGuildedNFT && isNftLoading)
+	const error = (isGuildedNFT ? guildedError : nftError)
 
 	if (isLoading) {
 		return (
