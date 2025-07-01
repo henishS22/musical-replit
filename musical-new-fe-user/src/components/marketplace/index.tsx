@@ -1,15 +1,21 @@
 "use client"
 
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 
 import MarketHome from "./MarketHome"
 import ViewAll from "./ViewAll"
 
 const Marketplace = () => {
+	const router = useRouter()
 	const [viewAllMode, setViewAllMode] = useState<string | null>(null)
 
 	const handleViewAll = (section: string) => {
-		setViewAllMode(section)
+		if (section === "Guild Passes") {
+			router.push("/guild-passes")
+		} else {
+			setViewAllMode(section)
+		}
 	}
 
 	const handleBack = () => {

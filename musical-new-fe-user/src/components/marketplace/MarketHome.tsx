@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useUserStore } from "@/stores"
 
 import ExchangeNFTSection from "../profile/tokenTab/ExchangeNFTSection"
-import { ComingSoon } from "../ui/commingSoon/commingSoon"
+import GuildedNFT from "./GuildedNFT"
 import LatestCreators from "./LatestCreators"
 import LatestMissions from "./quest/LatestMissions"
 
@@ -92,7 +92,7 @@ const MarketHome: React.FC<MarketHomeProps> = ({ onViewAll }) => {
 							</div>
 						</div>
 						<div>
-							<ComingSoon />
+							<GuildedNFT />
 						</div>
 					</div>
 

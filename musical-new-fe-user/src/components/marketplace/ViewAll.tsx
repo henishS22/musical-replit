@@ -9,6 +9,7 @@ import LatestMissions from "./quest/LatestMissions"
 import ExchangeNFTs from "./sections/ExchangeNFTs"
 import FeaturedProjects from "./sections/FeaturedProjects"
 import TrendingTokens from "./sections/TrendingTokens"
+import GuildedNFT from "./GuildedNFT"
 
 interface ViewAllProps {
 	onBack: () => void
@@ -37,6 +38,8 @@ const ViewAll: React.FC<ViewAllProps> = ({ onBack, activeSection }) => {
 				return <LatestCreators showAll={true} />
 			case "Latest Missions":
 				return <LatestMissions showAll={true} />
+			case "Guild Passes":
+				return <GuildedNFT showAll={true} />
 			default:
 				return null
 		}
