@@ -39,19 +39,22 @@ export default function BuyNFTDetails() {
 	})
 
 	// First, try to fetch from Guild NFT API
-	const { data: guildedNftData, isFetching: isGuildedNftFetching, error: guildedNftError } = useQuery({
+	const { data: guildedNftData, isFetching: isGuildedNftFetching } = useQuery({
 		queryKey: ["guildedNftData", id],
 		queryFn: () => fetchGuildedNftById(id as string),
 		enabled: !!id,
 		staleTime: 1000 * 60 * 60 * 24,
-		retry: false // Don't retry if it fails, just try regular NFT API
+		retry: false, // Don't retry if it fails, just try regular NFT API
+		meta: {
+			errorHandler: () => {} // Suppress error handling for guilded NFT API
+		}
 	})
 
 	// If not a guilded NFT, fetch from regular NFT API
 	const { data: regularNftData, isFetching: isRegularNftFetching } = useQuery({
 		queryKey: ["nftData", id],
 		queryFn: () => fetchNftsById(id as string, queryParams),
-		enabled: !!id && (!guildedNftData?.isGuildedNFT || guildedNftError) && !isGuildedNftFetching,
+		enabled: !!id && !guildedNftData?.isGuildedNFT && !isGuildedNftFetching,
 		staleTime: 1000 * 60 * 60 * 24
 	})
 
@@ -109,33 +112,62 @@ export default function BuyNFTDetails() {
 					txHash={nftDetails?.[0]?.transactionHash}
 				/>
 				{!nftDetails?.[0]?.isGuildedNFT && (
-					<div className="flex flex-col px-4 pt-4">
-						<Tabs
-							selectedKey={selectedTab}
-							onSelectionChange={(key) => setSelectedTab(key as string)}
-							aria-label="Buy NFT Tabs"
-							className="w-full"
-							classNames={{
-								tabList: "bg-transparent p-0 gap-0 w-full",
-								cursor: "bg-btnColor text-white",
-								tab: "px-4 py-2 text-sm font-medium data-[selected=true]:text-white data-[selected=false]:text-gray-500 border-b border-gray-300",
-								tabContent: "group-data-[selected=true]:text-white"
-							}}
-						>
-							{filteredTabs.map((tab) => (
-								<Tab key={tab.id} title={tab.label}>
-									<div className="py-4">
-										<TabContent
-											selectedTab={selectedTab}
-											nftId={id as string}
-											signature={signature}
-											message={message}
-										/>
-									</div>
-								</Tab>
-							))}
-						</Tabs>
-					</div>
+					<>
+						<div className="flex flex-col lg:hidden px-4 pt-4">
+							<Tabs
+								selectedKey={selectedTab}
+								onSelectionChange={(key) => setSelectedTab(key as string)}
+								aria-label="Buy NFT Tabs"
+								className="w-full"
+								classNames={{
+									tabList: "bg-transparent p-0 gap-0 w-full",
+									cursor: "bg-btnColor text-white",
+									tab: "px-4 py-2 text-sm font-medium data-[selected=true]:text-white data-[selected=false]:text-gray-500 border-b border-gray-300",
+									tabContent: "group-data-[selected=true]:text-white"
+								}}
+							>
+								{filteredTabs.map((tab) => (
+									<Tab key={tab.id} title={tab.label}>
+										<div className="py-4">
+											<TabContent
+												selectedTab={selectedTab}
+												nftId={id as string}
+												signature={signature}
+												message={message}
+											/>
+										</div>
+									</Tab>
+								))}
+							</Tabs>
+						</div>
+						<div className="hidden lg:flex flex-col px-4 pt-4">
+							<Tabs
+								selectedKey={selectedTab}
+								onSelectionChange={(key) => setSelectedTab(key as string)}
+								aria-label="Buy NFT Tabs"
+								className="w-full"
+								classNames={{
+									tabList: "bg-transparent p-0 gap-0 w-full justify-start",
+									cursor: "bg-btnColor text-white",
+									tab: "px-6 py-3 text-base font-medium data-[selected=true]:text-white data-[selected=false]:text-gray-500 border-b border-gray-300",
+									tabContent: "group-data-[selected=true]:text-white"
+								}}
+							>
+								{filteredTabs.map((tab) => (
+									<Tab key={tab.id} title={tab.label}>
+										<div className="py-6">
+											<TabContent
+												selectedTab={selectedTab}
+												nftId={id as string}
+												signature={signature}
+												message={message}
+											/>
+										</div>
+									</Tab>
+								))}
+							</Tabs>
+						</div>
+					</>
 				)}
 			</div>
 		</div>
