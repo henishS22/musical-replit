@@ -69,7 +69,7 @@ export default function BuyNFTDetails() {
 					creatorName={nftDetails?.[0]?.user?.name || ""}
 					title={nftDetails?.[0]?.title || ""}
 					description={nftDetails?.[0]?.description || ""}
-					price={`$ ${nftDetails?.[0]?.priceInUsd.toFixed(2)}` || "0.00 USD"}
+					price={`$ ${nftDetails?.[0]?.priceInUsd?.toFixed(2) || "0.00"}` || "0.00 USD"}
 					onBuyNow={() => {
 						if (!activeWallet) {
 							toast.error(CONNECT_WALLET)
@@ -94,34 +94,64 @@ export default function BuyNFTDetails() {
 					ownerId={nftDetails?.[0]?.user?._id}
 					txHash={nftDetails?.[0]?.transactionHash}
 				/>
-
-				{/* Tabs Section */}
-				<div className="bg-white rounded-xl shadow-lg">
-					<Tabs
-						aria-label="NFT Information"
-						selectedKey={selectedTab}
-						onSelectionChange={(key) => setSelectedTab(key.toString())}
-						variant="underlined"
-						classNames={{
-							tabList: "gap-6 w-full relative px-6 border-b border-[#EBECED]",
-							cursor: "w-full bg-[#1DB954] h-[2px]",
-							tab: "max-w-fit px-0 h-12",
-							tabContent: "font-medium text-[15px]"
-						}}
-					>
-						{filteredTabs?.map((tab) => (
-							<Tab key={tab.id} title={tab.label}>
-								<TabContent
-									type={tab.id}
-									projectId={nftDetails?.[0]?.project?._id}
-									nftId={id as string}
-									signature={signature || ""}
-									message={message || ""}
-								/>
-							</Tab>
-						))}
-					</Tabs>
-				</div>
+				{!nftDetails?.[0]?.isGuildedNFT && (
+					<>
+						<div className="flex flex-col lg:hidden px-4 pt-4">
+							<Tabs
+								selectedKey={selectedTab}
+								onSelectionChange={(key) => setSelectedTab(key as string)}
+								aria-label="Buy NFT Tabs"
+								className="w-full"
+								classNames={{
+									tabList: "bg-transparent p-0 gap-0 w-full",
+									cursor: "bg-btnColor text-white",
+									tab: "px-4 py-2 text-sm font-medium data-[selected=true]:text-white data-[selected=false]:text-gray-500 border-b border-gray-300",
+									tabContent: "group-data-[selected=true]:text-white"
+								}}
+							>
+								{filteredTabs.map((tab) => (
+									<Tab key={tab.id} title={tab.label}>
+										<div className="py-4">
+											<TabContent
+												selectedTab={selectedTab}
+												nftId={id as string}
+												signature={signature}
+												message={message}
+											/>
+										</div>
+									</Tab>
+								))}
+							</Tabs>
+						</div>
+						<div className="hidden lg:flex flex-col px-4 pt-4">
+							<Tabs
+								selectedKey={selectedTab}
+								onSelectionChange={(key) => setSelectedTab(key as string)}
+								aria-label="Buy NFT Tabs"
+								className="w-full"
+								classNames={{
+									tabList: "bg-transparent p-0 gap-0 w-full justify-start",
+									cursor: "bg-btnColor text-white",
+									tab: "px-6 py-3 text-base font-medium data-[selected=true]:text-white data-[selected=false]:text-gray-500 border-b border-gray-300",
+									tabContent: "group-data-[selected=true]:text-white"
+								}}
+							>
+								{filteredTabs.map((tab) => (
+									<Tab key={tab.id} title={tab.label}>
+										<div className="py-6">
+											<TabContent
+												selectedTab={selectedTab}
+												nftId={id as string}
+												signature={signature}
+												message={message}
+											/>
+										</div>
+									</Tab>
+								))}
+							</Tabs>
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	)

@@ -35,6 +35,7 @@ export const MARK_AS_READ = "/notifies/markAsRead"
 export const COINFLOW_CHECKOUT = "/coinflow/payment"
 export const CREATOR_QUEST = "/creator-quest"
 export const CREATE = "/create"
+export const GUILDED_NFT = "guilded-nft"
 
 // GET Request
 export const GET_TRACKS = "tracks/getRecentTracksByUser"
