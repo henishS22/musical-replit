@@ -1090,31 +1090,25 @@ export {
 
 // Guilded NFTs API
 export const fetchGuildedNfts = async (queryParams = "") => {
-	try {
-		const response = await apiInstance.get(`/guilded-nft/${queryParams}`)
-		return response.data
-	} catch (error) {
-		console.error("Error fetching guilded NFTs:", error)
-		throw error
-	}
+	const response = await apiRequest<ApiResponse<NftListResponse>>({
+		url: `/guilded-nft/${queryParams}`,
+		method: "GET"
+	})
+	return response?.data
 }
 
 export const fetchGuildedNftById = async (nftId: string) => {
-	try {
-		const response = await apiInstance.get(`/guilded-nft/getGuildedNftsById/${nftId}`)
-		return response.data
-	} catch (error) {
-		console.error("Error fetching guilded NFT by ID:", error)
-		throw error
-	}
+	const response = await apiRequest<ApiResponse<Response>>({
+		url: `/guilded-nft/getGuildedNftsById/${nftId}`,
+		method: "GET"
+	})
+	return response?.data
 }
 
 export const fetchReListedNfts = async (queryParams = "") => {
-	try {
-		const response = await apiInstance.get(`/guilded-nft/relisted-nfts${queryParams}`)
-		return response.data
-	} catch (error) {
-		console.error("Error fetching re-listed NFTs:", error)
-		throw error
-	}
+	const response = await apiRequest<ApiResponse<NftListResponse>>({
+		url: `/guilded-nft/relisted-nfts${queryParams}`,
+		method: "GET"
+	})
+	return response?.data
 }
