@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "react-toastify"
 import Image from "next/image"
 import { useParams } from "next/navigation"
 
-import { fetchNftsById } from "@/app/api/query"
+import { fetchNftsById, fetchGuildedNftById } from "@/app/api/query"
 import { PROFILE_IMAGE } from "@/assets"
 import { BUY_NFT_MODAL } from "@/constant/modalType"
 import { CONNECT_WALLET } from "@/constant/toastMessages"
@@ -24,6 +24,7 @@ export default function BuyNFTDetails() {
 	const [selectedTab, setSelectedTab] = useState("studio")
 	const [signature, setSignature] = useState<string | null>(null)
 	const [message, setMessage] = useState<string | null>(null)
+	const [isGuildedNFT, setIsGuildedNFT] = useState<boolean>(false)
 	const { user } = useUserStore()
 
 	const activeWallet = useActiveWallet()
@@ -38,9 +39,30 @@ export default function BuyNFTDetails() {
 			: activeWallet && { address: walletAddress ?? "" })
 	})
 
-	const { data: nftDetails, isFetching: isNftDetailsFetching } = useQuery({
-		queryKey: ["nftData", id],
+	// First, check if this is a Guilded NFT by calling the regular NFT API
+	const { data: initialNftCheck } = useQuery({
+		queryKey: ["initialNftCheck", id],
 		queryFn: () => fetchNftsById(id as string, queryParams),
+		enabled: !!id,
+		staleTime: 1000 * 60 * 60 * 24
+	})
+
+	// Update isGuildedNFT state when initial check completes
+	useEffect(() => {
+		if (initialNftCheck?.[0]?.isGuildedNFT) {
+			setIsGuildedNFT(true)
+		}
+	}, [initialNftCheck])
+
+	// Use appropriate API based on NFT type
+	const { data: nftDetails, isFetching: isNftDetailsFetching } = useQuery({
+		queryKey: ["nftData", id, isGuildedNFT],
+		queryFn: () => {
+			if (isGuildedNFT) {
+				return fetchGuildedNftById(id as string, queryParams)
+			}
+			return fetchNftsById(id as string, queryParams)
+		},
 		enabled: !!id,
 		staleTime: 1000 * 60 * 60 * 24
 	})
@@ -94,7 +116,7 @@ export default function BuyNFTDetails() {
 					ownerId={nftDetails?.[0]?.user?._id}
 					txHash={nftDetails?.[0]?.transactionHash}
 				/>
-				{!nftDetails?.[0]?.isGuildedNFT && (
+				{!isGuildedNFT && (
 					<>
 						<div className="flex flex-col lg:hidden px-4 pt-4">
 							<Tabs
