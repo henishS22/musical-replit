@@ -122,7 +122,7 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({
 				<h2 className="font-semibold text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary">
 					Guild Passes
 				</h2>
-				{onViewAll && guildedNfts.length > 0 && (
+				{onViewAll && (
 					<Button
 						onPress={() => onViewAll("Guild Passes")}
 						type="submit"

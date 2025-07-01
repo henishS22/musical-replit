@@ -1,28 +1,26 @@
 
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { useInView } from "react-intersection-observer"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
-
-import { fetchGuildedNfts, fetchReListedNfts } from "@/app/api/query"
-import { generateQueryParams } from "@/helpers"
 import { 
-	Button, 
-	Skeleton, 
 	Card, 
 	CardBody, 
 	CardFooter, 
 	Tabs, 
-	Tab,
-	Select,
+	Tab, 
+	Input, 
+	Select, 
 	SelectItem,
-	Input
+	Skeleton
 } from "@nextui-org/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 
-import { NoDataFound } from "../ui"
+import { fetchGuildedNfts, fetchReListedNfts } from "@/app/api/query"
+import { generateQueryParams } from "@/helpers"
+import { NoDataFound } from "@/components/ui"
 
 const GuildedNFTSkeleton = () => (
 	<Card className="w-full">
@@ -44,6 +42,7 @@ const GuildPassesPage: React.FC = () => {
 	const [sortBy, setSortBy] = useState("newest")
 	const [searchQuery, setSearchQuery] = useState("")
 
+	// First Time Buy NFTs Query
 	const { 
 		data: firstTimeData, 
 		fetchNextPage: fetchNextPageFirstTime, 
@@ -73,6 +72,7 @@ const GuildPassesPage: React.FC = () => {
 		enabled: activeTab === "first-time"
 	})
 
+	// Re-listed NFTs Query
 	const { 
 		data: reListedData, 
 		fetchNextPage: fetchNextPageReListed, 
@@ -81,12 +81,11 @@ const GuildPassesPage: React.FC = () => {
 		isLoading: isLoadingReListed,
 		error: errorReListed
 	} = useInfiniteQuery({
-		queryKey: ["re-listed-nfts", sortBy, searchQuery],
+		queryKey: ["guilded-nfts", "re-listed", sortBy, searchQuery],
 		queryFn: async ({ pageParam = 1 }) => {
 			const url = generateQueryParams({
 				page: pageParam,
-				limit: 16,
-				isListed: true
+				limit: 16
 			})
 			return fetchReListedNfts(url)
 		},
@@ -102,6 +101,7 @@ const GuildPassesPage: React.FC = () => {
 		enabled: activeTab === "re-listed"
 	})
 
+	// Get current data based on active tab
 	const currentData = activeTab === "first-time" ? firstTimeData : reListedData
 	const currentFetchNextPage = activeTab === "first-time" ? fetchNextPageFirstTime : fetchNextPageReListed
 	const currentHasNextPage = activeTab === "first-time" ? hasNextPageFirstTime : hasNextPageReListed
@@ -109,45 +109,21 @@ const GuildPassesPage: React.FC = () => {
 	const currentIsLoading = activeTab === "first-time" ? isLoadingFirstTime : isLoadingReListed
 	const currentError = activeTab === "first-time" ? errorFirstTime : errorReListed
 
-	const guildedNfts = React.useMemo(() => {
+	// Flatten all pages data
+	const guildedNfts = useMemo(() => {
 		return currentData?.pages.flatMap((page) => page?.data ?? []) || []
 	}, [currentData])
 
-	React.useEffect(() => {
-		if (inView && currentHasNextPage && !currentIsFetchingNextPage) {
-			currentFetchNextPage()
-		}
-	}, [inView, currentHasNextPage, currentIsFetchingNextPage, currentFetchNextPage])
-
-	const handleNftClick = (nftId: string) => {
-		router.push(`/buy-nft/${nftId}`)
-	}
-
-	const formatPrice = (nft: any) => {
-		if (nft.ethereumPrice) {
-			return `${nft.ethereumPrice.toFixed(4)} ETH`
-		}
-		if (nft.maticPrice) {
-			return `${nft.maticPrice.toFixed(4)} MATIC`
-		}
-		if (nft.price) {
-			return `$${nft.price}`
-		}
-		if (nft.priceInUsd) {
-			return `$${nft.priceInUsd.toFixed(2)}`
-		}
-		return "$499"
-	}
-
-	const filteredNfts = React.useMemo(() => {
+	// Filter and sort NFTs
+	const filteredNfts = useMemo(() => {
 		let filtered = [...guildedNfts]
-		
+
 		// Apply search filter
 		if (searchQuery.trim()) {
-			filtered = filtered.filter(nft => 
-				nft.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				nft.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				nft.user_array?.[0]?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+			const query = searchQuery.toLowerCase()
+			filtered = filtered.filter((nft) => 
+				nft.title?.toLowerCase().includes(query) ||
+				nft.user_array?.[0]?.name?.toLowerCase().includes(query)
 			)
 		}
 
@@ -175,6 +151,30 @@ const GuildPassesPage: React.FC = () => {
 
 		return filtered
 	}, [guildedNfts, searchQuery, sortBy])
+
+	// Handle infinite scroll
+	React.useEffect(() => {
+		if (inView && currentHasNextPage && !currentIsFetchingNextPage) {
+			currentFetchNextPage()
+		}
+	}, [inView, currentHasNextPage, currentIsFetchingNextPage, currentFetchNextPage])
+
+	const handleNftClick = (nftId: string) => {
+		router.push(`/buy-nft/${nftId}`)
+	}
+
+	const formatPrice = (nft: any) => {
+		if (nft.ethereumPrice) {
+			return `${nft.ethereumPrice.toFixed(4)} ETH`
+		}
+		if (nft.maticPrice) {
+			return `${nft.maticPrice.toFixed(4)} MATIC`
+		}
+		if (nft.priceInUsd) {
+			return `$${nft.priceInUsd}`
+		}
+		return "$499"
+	}
 
 	if (currentError) {
 		return (
@@ -204,7 +204,7 @@ const GuildPassesPage: React.FC = () => {
 						<Select
 							placeholder="Sort by"
 							selectedKeys={[sortBy]}
-							onChange={(e) => setSortBy(e.target.value)}
+							onSelectionChange={(keys) => setSortBy(Array.from(keys)[0] as string)}
 							className="w-full sm:w-48"
 							size="sm"
 						>
