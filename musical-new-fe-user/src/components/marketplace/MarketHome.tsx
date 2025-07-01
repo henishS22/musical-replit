@@ -84,16 +84,7 @@ const MarketHome: React.FC<MarketHomeProps> = ({ onViewAll }) => {
 			{user && (
 				<>
 					<div className="flex flex-col">
-						<div className="flex flex-wrap gap-10 justify-between items-center w-full max-md:max-w-full">
-							<div
-								className={`self-stretch my-1 font-semibold text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary`}
-							>
-								Guild Passes
-							</div>
-						</div>
-						<div>
-							<GuildedNFT />
-						</div>
+						<GuildedNFT onViewAll={() => onViewAll("Guild Passes")} />
 					</div>
 
 					<ExchangeNFTSection
