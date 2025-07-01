@@ -1,175 +1,157 @@
 "use client"
 
-import { useState } from "react"
-import { toast } from "react-toastify"
-import Image from "next/image"
+import React, { useState, useEffect, useMemo } from "react"
 import { useParams } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
+import { Tabs, Tab } from "@nextui-org/react"
 
 import { fetchNftsById, fetchGuildedNftById } from "@/app/api/query"
-import { PROFILE_IMAGE } from "@/assets"
-import { BUY_NFT_MODAL } from "@/constant/modalType"
-import { CONNECT_WALLET } from "@/constant/toastMessages"
-import { generateQueryParams } from "@/helpers"
-import { Tab, Tabs } from "@nextui-org/react"
-import { useQuery } from "@tanstack/react-query"
-import { useActiveWallet } from "thirdweb/react"
+import { BuyNftCard } from "./BuyNftCard"
+import { TabContent } from "./TabContent"
+import { NFTCardSkeleton } from "./NFTCardSkeleton"
 
-import { buyNftTabs } from "@/config/buyNft"
-import { useModalStore, useUserStore } from "@/stores"
-
-import BuyNftCard from "./BuyNftCard"
-import TabContent from "./TabContent"
-
-export default function BuyNFTDetails() {
-	const [selectedTab, setSelectedTab] = useState("studio")
-	const [signature, setSignature] = useState<string | null>(null)
-	const [message, setMessage] = useState<string | null>(null)
-	const { user } = useUserStore()
-
-	const activeWallet = useActiveWallet()
-	const walletAddress = activeWallet?.getAccount()?.address
-
-	const { showCustomModal } = useModalStore()
+const BuyNFTDetails: React.FC = () => {
 	const { id } = useParams()
+	const nftId = Array.isArray(id) ? id[0] : id
+	const [selectedTab, setSelectedTab] = useState("collectibles")
 
-	const queryParams = generateQueryParams({
-		...(user
-			? { owner: user.id }
-			: activeWallet && { address: walletAddress ?? "" })
+	// First, try to fetch Guild NFT data to check if it's a Guild NFT
+	const { data: guildedNftData, isLoading: isGuildedLoading, error: guildedError } = useQuery({
+		queryKey: ["guilded-nft", nftId],
+		queryFn: () => fetchGuildedNftById(nftId),
+		enabled: !!nftId,
+		staleTime: 1000 * 60 * 5,
+		retry: 2
 	})
 
-	// First, try to fetch from Guild NFT API
-	const { data: guildedNftData, isFetching: isGuildedNftFetching } = useQuery({
-		queryKey: ["guildedNftData", id],
-		queryFn: () => fetchGuildedNftById(id as string),
-		enabled: !!id,
-		staleTime: 1000 * 60 * 60 * 24,
-		retry: false, // Don't retry if it fails, just try regular NFT API
-		meta: {
-			errorHandler: () => {} // Suppress error handling for guilded NFT API
-		}
+	// Check if this is a Guild NFT based on the guilded-nft API response
+	const isGuildedNFT = guildedNftData?.isGuildedNFT === true
+
+	// Conditionally fetch regular NFT data if it's NOT a Guild NFT
+	const { data: nftData, isLoading: isNftLoading, error: nftError } = useQuery({
+		queryKey: ["nft", nftId],
+		queryFn: () => fetchNftsById(nftId),
+		enabled: !!nftId && !isGuildedNFT && !isGuildedLoading,
+		staleTime: 1000 * 60 * 5,
+		retry: 2
 	})
 
-	// If not a guilded NFT, fetch from regular NFT API
-	const { data: regularNftData, isFetching: isRegularNftFetching } = useQuery({
-		queryKey: ["nftData", id],
-		queryFn: () => fetchNftsById(id as string, queryParams),
-		enabled: !!id && !guildedNftData?.isGuildedNFT && !isGuildedNftFetching,
-		staleTime: 1000 * 60 * 60 * 24
-	})
+	// Use the appropriate data source
+	const displayData = isGuildedNFT ? guildedNftData : nftData
+	const isLoading = isGuildedLoading || (!isGuildedNFT && isNftLoading)
+	const error = (isGuildedNFT ? guildedError : nftError)
 
-	// Use guilded NFT data if available and is a guilded NFT, otherwise use regular NFT data
-	const nftDetails = guildedNftData?.isGuildedNFT ? [guildedNftData] : regularNftData
-	const isNftDetailsFetching = isGuildedNftFetching || isRegularNftFetching
+	if (isLoading) {
+		return (
+			<div className="container mx-auto px-4 py-8">
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+					<NFTCardSkeleton />
+					<NFTCardSkeleton />
+				</div>
+			</div>
+		)
+	}
 
-	// Filter tabs based on user presence
-	const filteredTabs = user
-		? buyNftTabs
-		: buyNftTabs.filter((tab) => tab.id !== "discussion")
+	if (error || !displayData) {
+		return (
+			<div className="container mx-auto px-4 py-8">
+				<div className="text-center py-12">
+					<h2 className="text-2xl font-bold text-gray-900 mb-4">NFT Not Found</h2>
+					<p className="text-gray-600">
+						The NFT you're looking for doesn't exist or has been removed.
+					</p>
+				</div>
+			</div>
+		)
+	}
 
 	return (
-		<div className="min-h-screen relative">
-			{/* Background Image with Blur */}
-			<div className="fixed inset-0 z-0">
-				<Image
-					src={nftDetails?.[0]?.artworkUrl}
-					alt="NFT Background"
-					fill
-					className="object-cover"
-				/>
-				<div className="absolute inset-0 backdrop-blur-xl" />
-			</div>
-			<div className="relative z-10">
-				<BuyNftCard
-					imageUrl={nftDetails?.[0]?.artworkUrl || ""}
-					creatorImage={nftDetails?.[0]?.user?.profile_img || PROFILE_IMAGE}
-					creatorName={nftDetails?.[0]?.user?.name || ""}
-					title={nftDetails?.[0]?.title || ""}
-					description={nftDetails?.[0]?.description || ""}
-					price={`$ ${nftDetails?.[0]?.priceInUsd?.toFixed(2) || "0.00"}` || "0.00 USD"}
-					onBuyNow={() => {
-						if (!activeWallet) {
-							toast.error(CONNECT_WALLET)
-							return
-						}
-						showCustomModal({
-							customModalType: BUY_NFT_MODAL,
-							tempCustomModalData: {
-								quantity:
-									nftDetails?.[0]?.initialSupply -
-									nftDetails?.[0]?.quantityPurchased,
-								listingId: nftDetails?.[0]?.listingId,
-								price: nftDetails?.[0]?.price
-							}
-						})
-					}}
-					isLoading={isNftDetailsFetching}
-					tokenId={nftDetails?.[0]?.tokenId}
-					setSignature={setSignature}
-					setMessage={setMessage}
-					showVerifyButton={true}
-					ownerId={nftDetails?.[0]?.user?._id}
-					txHash={nftDetails?.[0]?.transactionHash}
-				/>
-				{!nftDetails?.[0]?.isGuildedNFT && (
-					<>
-						<div className="flex flex-col lg:hidden px-4 pt-4">
-							<Tabs
-								selectedKey={selectedTab}
-								onSelectionChange={(key) => setSelectedTab(key as string)}
-								aria-label="Buy NFT Tabs"
-								className="w-full"
-								classNames={{
-									tabList: "bg-transparent p-0 gap-0 w-full",
-									cursor: "bg-btnColor text-white",
-									tab: "px-4 py-2 text-sm font-medium data-[selected=true]:text-white data-[selected=false]:text-gray-500 border-b border-gray-300",
-									tabContent: "group-data-[selected=true]:text-white"
-								}}
+		<div className="container mx-auto px-4 py-8">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+				{/* Left Column - NFT Card */}
+				<div className="lg:sticky lg:top-8 lg:self-start">
+					<BuyNftCard nft={displayData} />
+				</div>
+
+				{/* Right Column - Tabs and Content */}
+				<div className="space-y-6">
+					{/* Only show tabs if it's NOT a Guild NFT */}
+					{!isGuildedNFT && (
+						<Tabs
+							selectedKey={selectedTab}
+							onSelectionChange={(key) => setSelectedTab(key as string)}
+							variant="underlined"
+							classNames={{
+								tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+								cursor: "w-full bg-primary",
+								tab: "max-w-fit px-0 h-12",
+								tabContent: "group-data-[selected=true]:text-primary"
+							}}
+						>
+							<Tab
+								key="collectibles"
+								title={
+									<div className="flex items-center space-x-2">
+										<span>Collectibles</span>
+									</div>
+								}
 							>
-								{filteredTabs.map((tab) => (
-									<Tab key={tab.id} title={tab.label}>
-										<div className="py-4">
-											<TabContent
-												selectedTab={selectedTab}
-												nftId={id as string}
-												signature={signature}
-												message={message}
-											/>
-										</div>
-									</Tab>
-								))}
-							</Tabs>
-						</div>
-						<div className="hidden lg:flex flex-col px-4 pt-4">
-							<Tabs
-								selectedKey={selectedTab}
-								onSelectionChange={(key) => setSelectedTab(key as string)}
-								aria-label="Buy NFT Tabs"
-								className="w-full"
-								classNames={{
-									tabList: "bg-transparent p-0 gap-0 w-full justify-start",
-									cursor: "bg-btnColor text-white",
-									tab: "px-6 py-3 text-base font-medium data-[selected=true]:text-white data-[selected=false]:text-gray-500 border-b border-gray-300",
-									tabContent: "group-data-[selected=true]:text-white"
-								}}
+								<TabContent nft={displayData} type="collectibles" />
+							</Tab>
+							<Tab
+								key="studio"
+								title={
+									<div className="flex items-center space-x-2">
+										<span>Studio</span>
+									</div>
+								}
 							>
-								{filteredTabs.map((tab) => (
-									<Tab key={tab.id} title={tab.label}>
-										<div className="py-6">
-											<TabContent
-												selectedTab={selectedTab}
-												nftId={id as string}
-												signature={signature}
-												message={message}
-											/>
-										</div>
-									</Tab>
-								))}
-							</Tabs>
+								<TabContent nft={displayData} type="studio" />
+							</Tab>
+							<Tab
+								key="discussion"
+								title={
+									<div className="flex items-center space-x-2">
+										<span>Discussion</span>
+									</div>
+								}
+							>
+								<TabContent nft={displayData} type="discussion" />
+							</Tab>
+							<Tab
+								key="stream"
+								title={
+									<div className="flex items-center space-x-2">
+										<span>Stream</span>
+									</div>
+								}
+							>
+								<TabContent nft={displayData} type="stream" />
+							</Tab>
+						</Tabs>
+					)}
+
+					{/* For Guild NFTs, show a simple message or different content */}
+					{isGuildedNFT && (
+						<div className="bg-gray-50 rounded-lg p-6">
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">
+								Guild Pass Details
+							</h3>
+							<p className="text-gray-600">
+								This is a Guild Pass NFT with special access privileges.
+							</p>
+							{displayData.description && (
+								<div className="mt-4">
+									<h4 className="font-medium text-gray-900 mb-2">Description</h4>
+									<p className="text-gray-600">{displayData.description}</p>
+								</div>
+							)}
 						</div>
-					</>
-				)}
+					)}
+				</div>
 			</div>
 		</div>
 	)
 }
+
+export default BuyNFTDetails

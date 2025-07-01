@@ -1089,20 +1089,15 @@ export {
 
 
 // Guilded NFTs API
-export const fetchGuildedNfts = async (queryParams = "") => {
-	const response = await apiRequest<ApiResponse<NftListResponse>>({
-		url: `/guilded-nft/${queryParams}`,
-		method: "GET"
-	})
-	return response?.data
+export const fetchGuildedNfts = async (url: string) => {
+	const response = await apiRequest("get", `/guilded-nft/${url}`)
+	return response.data
 }
 
-export const fetchGuildedNftById = async (nftId: string) => {
-	const response = await apiRequest<ApiResponse<Response>>({
-		url: `/guilded-nft/getGuildedNftsById/${nftId}`,
-		method: "GET"
-	})
-	return response?.data
+export const fetchGuildedNftById = async (nftId: string, queryParams?: string) => {
+	const url = queryParams ? `/guilded-nft/getGuildedNftsById/${nftId}?${queryParams}` : `/guilded-nft/getGuildedNftsById/${nftId}`
+	const response = await apiRequest("get", url)
+	return response.data
 }
 
 export const fetchReListedNfts = async (queryParams = "") => {
