@@ -1,4 +1,3 @@
-
 "use client"
 
 import React from "react"
@@ -10,6 +9,13 @@ import { fetchGuildedNfts } from "@/app/api/query"
 import { generateQueryParams } from "@/helpers"
 import { Button, Skeleton, Card, CardBody, CardFooter } from "@nextui-org/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
+
+import { fetchGuildedNfts } from "@/app/api/query"
+
+interface GuildedNFTProps {
+	showAll?: boolean
+	onViewAll?: (section: string) => void
+}
 
 import { NoDataFound } from "../ui"
 
@@ -26,15 +32,9 @@ const GuildedNFTSkeleton = () => (
 	</Card>
 )
 
-interface GuildedNFTProps {
-	onViewAll?: (section: string) => void
-	showAll?: boolean
-}
 
-const GuildedNFT: React.FC<GuildedNFTProps> = ({
-	onViewAll,
-	showAll = false
-}) => {
+
+const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) => {
 	const router = useRouter()
 	const { ref: loadMoreRef, inView } = useInView()
 
@@ -132,7 +132,7 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({
 					</Button>
 				)}
 			</div>
-			
+
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
 				{isLoading ? (
 					Array.from({ length: showAll ? 12 : 8 }).map((_, index) => (
@@ -184,7 +184,7 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({
 					</div>
 				)}
 			</div>
-			
+
 			{showAll && hasNextPage && (
 				<div ref={loadMoreRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
 					{isFetchingNextPage && (
