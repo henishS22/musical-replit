@@ -5,7 +5,7 @@ import { toast } from "react-toastify"
 import Image from "next/image"
 import { useParams } from "next/navigation"
 
-import { fetchNftsById } from "@/app/api/query"
+import { fetchNftsById, fetchGuildedNftById } from "@/app/api/query"
 import { PROFILE_IMAGE } from "@/assets"
 import { BUY_NFT_MODAL } from "@/constant/modalType"
 import { CONNECT_WALLET } from "@/constant/toastMessages"
@@ -38,12 +38,26 @@ export default function BuyNFTDetails() {
 			: activeWallet && { address: walletAddress ?? "" })
 	})
 
-	const { data: nftDetails, isFetching: isNftDetailsFetching } = useQuery({
+	// First, try to fetch from Guild NFT API
+	const { data: guildedNftData, isFetching: isGuildedNftFetching } = useQuery({
+		queryKey: ["guildedNftData", id],
+		queryFn: () => fetchGuildedNftById(id as string),
+		enabled: !!id,
+		staleTime: 1000 * 60 * 60 * 24,
+		retry: false // Don't retry if it fails, just try regular NFT API
+	})
+
+	// If not a guilded NFT, fetch from regular NFT API
+	const { data: regularNftData, isFetching: isRegularNftFetching } = useQuery({
 		queryKey: ["nftData", id],
 		queryFn: () => fetchNftsById(id as string, queryParams),
-		enabled: !!id,
+		enabled: !!id && !guildedNftData?.isGuildedNFT && !isGuildedNftFetching,
 		staleTime: 1000 * 60 * 60 * 24
 	})
+
+	// Use guilded NFT data if available and is a guilded NFT, otherwise use regular NFT data
+	const nftDetails = guildedNftData?.isGuildedNFT ? [guildedNftData] : regularNftData
+	const isNftDetailsFetching = isGuildedNftFetching || isRegularNftFetching
 
 	// Filter tabs based on user presence
 	const filteredTabs = user
