@@ -90,6 +90,12 @@ const MarketHome: React.FC<MarketHomeProps> = ({ onViewAll }) => {
 							>
 								Guild Passes
 							</div>
+							<button
+								onClick={() => onViewAll("Guild Passes")}
+								className="text-primaryGreen hover:text-primaryGreen/80 font-medium"
+							>
+								View All
+							</button>
 						</div>
 						<div>
 							<GuildedNFT />
