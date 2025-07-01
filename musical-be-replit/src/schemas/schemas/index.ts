@@ -49,3 +49,4 @@ export * from './collabRole.schema';
 export * from './user-file.schema';
 export * from './gamificationEvent.schema';
 export * from './userActivity.schema'
+export * from './guildedNft.schema';

@@ -82,6 +82,8 @@ import {
   GamificationEventSchema,
   UserActivity,
   UserActivitySchema,
+  GuildedNft,
+  GuildedNftSchema,
 } from './schemas';
 import { SongContest, SongContestSchema } from './schemas/song-contest.schema';
 import {
@@ -168,6 +170,8 @@ import { Leaderboard, LeaderboardSchema } from './schemas/leaderboard';
 
 
       { name: Leaderboard.name, schema: LeaderboardSchema },
+      { name: GuildedNft.name, schema: GuildedNftSchema },
+
 
     ]),
   ],

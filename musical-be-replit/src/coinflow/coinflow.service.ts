@@ -532,4 +532,152 @@ export class CoinflowService {
 
     return sessionToken
   }
+
+
+  async handleLifeTimeSubscription(webhookData: any) {
+    const { wallet, planCode } = webhookData;
+
+    console.log(webhookData, '============webhookData=====================');
+
+    try {
+
+      const userData = await this.userModel.findOne({
+        'wallets.addr': new RegExp(`^${wallet}$`, 'i'),
+      });
+      const userId = userData?._id
+
+      const subscriptions = await this.subscriptionModel.find({
+        status: 'active',
+      });
+      const planCodes = [
+        ...new Set(
+          subscriptions.map((subscriptionObj) => subscriptionObj.planCode),
+        ),
+      ];
+      if (planCodes.includes(planCode)) {
+        // Find the subscription plan
+        const subscriptionDoc = await this.subscriptionModel.findOne({
+          planCode: planCode,
+        });
+        if (!subscriptionDoc) {
+          return {
+            isSuccess: false,
+          };
+        }
+
+        //create ayrshare profile for social_management_suite feature available on subscription
+        const socialManagementFeature = subscriptionDoc.features.find(
+          (feature) => feature.featureKey === 'social_management_suite'
+        );
+
+        const user = await this.userModel.findOne({ _id: userId });
+
+        if (user && !user.ayrshare && socialManagementFeature && socialManagementFeature?.available) {
+          // Create Ayrshare profile
+          await this.ayrshareService.createProfile(
+            { title: user?.username || user?.name },
+            user._id.toString(),
+          );
+        }
+
+        let startDate = null;
+        let endDate = null;
+        let isCanceled = undefined;
+
+        startDate = new Date();
+        endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + 1);
+
+
+        // create userSubscriptionFeatures
+        const userSubscriptionFeatures = [];
+        if (subscriptionDoc.features.length) {
+          for (let i = 0; i < subscriptionDoc.features.length; i++) {
+            const feature = subscriptionDoc.features[i];
+            if (feature) {
+              const userFeature = {
+                featureKey: feature.featureKey,
+                limit: feature.limit,
+                unit: feature.unit,
+                usage: 0,
+              };
+              userSubscriptionFeatures.push(userFeature);
+            }
+          }
+        }
+
+
+        const previousSubscription = await this.userSubscriptionModel.findOne(
+          {
+            userId: userId,
+            type: 'subscription',
+            status: UserSubscriptionStatus.Active,
+          },
+        );
+
+        // Carry forward storage usage if previous subscription exists
+        if (previousSubscription) {
+          const previousUsage: any = previousSubscription.usage;
+          userSubscriptionFeatures.forEach((feature) => {
+            if (feature.featureKey === 'storage') {
+              const previousFeature = previousUsage.find(
+                (prev: any) => prev.featureKey === 'storage',
+              );
+              if (previousFeature) {
+                feature.usage = previousFeature.usage;
+              }
+            }
+          });
+
+          // Cancel the subscription on coinflow if user has previous subscription
+          if (
+            previousSubscription.coinflow?.subscriptionId &&
+            previousSubscription.coinflow?.wallet
+          ) {
+            const cancelObj = {
+              id: previousSubscription.coinflow.subscriptionId,
+              wallet: previousSubscription.coinflow.wallet,
+            };
+            const response = await coinflowHelper.cancelSubscription(
+              cancelObj,
+            );
+            if (response.status == 200) {
+              await this.cancelSubscription(cancelObj);
+            }
+          }
+        }
+
+        // Find all existing subscriptions for the user
+        await this.userSubscriptionModel.updateMany(
+          { userId: userId, type: 'subscription' },
+          { $set: { status: UserSubscriptionStatus.Inactive } },
+        );
+
+        // Create new subscription
+        await this.userSubscriptionModel.create({
+          userId: userId,
+          subscriptionId: subscriptionDoc._id,
+          name: subscriptionDoc.name,
+          planCode: subscriptionDoc.planCode,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+          type: subscriptionDoc.type,
+          subscriptionInterval: subscriptionDoc.interval,
+          billingCycle: subscriptionDoc.interval,
+          nextBillingDate: undefined,
+          status: UserSubscriptionStatus.Active,
+          usage: userSubscriptionFeatures,
+        });
+        return {
+          isSuccess: true,
+        };
+
+      }
+      return {
+        isSuccess: true,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 }

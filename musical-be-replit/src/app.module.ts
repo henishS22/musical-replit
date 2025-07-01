@@ -38,6 +38,7 @@ import { UserActivityModule } from './user-activity/user-activity.module';
 import { ChartmetricModule } from './chartmetric/chartmetric.module';
 import { QuestModule } from './quest/quest.module';
 import { ScrapperModule } from './scrapper/scrapper.module';
+import { GuildedNftModule } from './guilded-nft/guildedNft.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { ScrapperModule } from './scrapper/scrapper.module';
     GamificationEventModule,
     QuestModule,
     ScrapperModule,
+    GuildedNftModule,
     RedisModule.forRoot({
       closeClient: true,
       config: {

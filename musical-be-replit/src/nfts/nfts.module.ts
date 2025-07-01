@@ -16,6 +16,7 @@ import { FileStorageService } from '../file-storage/fileStorage.service';
 import { ProjectsModule } from '../projects/projects.module';
 import { ProjectTracksService } from '../projects/services/projectTracks.service';
 import { UserActivityService } from '../user-activity/user-activity.service';
+import { GuildedNftService } from '../guilded-nft/guildedNft.service';
 
 @Module({
   imports: [
@@ -34,8 +35,8 @@ import { UserActivityService } from '../user-activity/user-activity.service';
     }),
   ],
   controllers: [NftsController],
-  providers: [NftsService, GeneralExceptionFilter, FileStorageService, ProjectTracksService, UserActivityService],
-  exports: [NftsService, UserActivityService],
+  providers: [NftsService, GeneralExceptionFilter, FileStorageService, ProjectTracksService, UserActivityService, GuildedNftService],
+  exports: [NftsService, UserActivityService, GuildedNftService],
 })
 export class NftsModule implements OnModuleInit, OnModuleDestroy {
   //Define the microservice to connect

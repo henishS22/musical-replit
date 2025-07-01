@@ -1,4 +1,4 @@
-import { Logger, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Global, Logger, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { CoinflowController } from './coinflow.controller';
 import { CoinflowService } from './coinflow.service';
 import { UsersModule } from '../users/users.module';
@@ -8,10 +8,12 @@ import { ProjectsModule } from '../projects/projects.module';
 import { ProjectGetterService } from '../projects/services/projectGetter.service';
 import { KazmService } from '../kazm/kazm.service';
 
+@Global()
 @Module({
   imports: [SchemasModule, UsersModule, ProjectsModule],
   controllers: [CoinflowController],
   providers: [UsersService, CoinflowService, ProjectGetterService, KazmService],
+  exports: [UsersService, CoinflowService, ProjectGetterService, KazmService],
 })
 export class CoinflowModule implements OnModuleInit, OnModuleDestroy {
   //Define the microservice to connect

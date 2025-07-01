@@ -31,12 +31,16 @@ import {
   AddEditionContractAsMarketplaceListerDto,
 } from './dto';
 import { LoggingInterceptor } from '../interceptors/loggin.interceptor';
+import { GuildedNftService } from '../guilded-nft/guildedNft.service';
 
 @Controller('nfts')
 @UseInterceptors(LoggingInterceptor)
 @ApiTags('Nfts')
 export class NftsController {
-  constructor(private readonly nftsService: NftsService) { }
+  constructor(
+    private readonly nftsService: NftsService,
+    private readonly guildedNftService: GuildedNftService
+  ) { }
 
   @UseGuards(JwtAuthGuard)
   @Get('getNftsByWallet/:walletAddress')
@@ -224,6 +228,11 @@ export class NftsController {
           // case '0x7018b71af3cc7a6e5e5cebdfa539d1638e2fa07ba579ea6c9117c315052d6ac5':
           result = await this.nftsService.handleNftForExchangeRemoved(data);
           break;
+
+        case 'GuildedNftPurchased':
+          result = await this.guildedNftService.handleGuildedNftPurchased(data);
+          break;
+
 
         default:
           result = { message: 'Unhandled event type', eventName };
