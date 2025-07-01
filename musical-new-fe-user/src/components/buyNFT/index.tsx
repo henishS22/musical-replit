@@ -125,10 +125,11 @@ export default function BuyNFTDetails() {
 							{filteredTabs?.map((tab) => (
 								<Tab key={tab.id} title={tab.label}>
 									<TabContent
-										selectedTab={selectedTab}
+										type={tab.id}
+										projectId={nftDetails?.[0]?.project?._id || ""}
 										nftId={id as string}
-										signature={signature}
-										message={message}
+										signature={signature || ""}
+										message={message || ""}
 									/>
 								</Tab>
 							))}

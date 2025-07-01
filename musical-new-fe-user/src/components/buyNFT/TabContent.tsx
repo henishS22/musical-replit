@@ -8,39 +8,41 @@ import { Stream } from "./sections/stream"
 import Studio from "./sections/Studio"
 
 interface TabContentProps {
-	selectedTab: string
+	type: string
+	projectId: string
 	nftId: string
-	signature: string | null
-	message: string | null
+	signature: string
+	message: string
 }
 
 export default function TabContent({
-	selectedTab,
+	type,
+	projectId,
 	nftId,
 	signature,
 	message
 }: TabContentProps) {
-	switch (selectedTab) {
+	switch (type) {
 		case "studio":
 			return (
 				<Studio
-					projectId=""
+					projectId={projectId}
 					nftId={nftId}
-					signature={signature || ""}
-					message={message || ""}
+					signature={signature}
+					message={message}
 				/>
 			)
 		case "discussion":
-			return <Discussion projectId="" signature={signature || ""} />
+			return <Discussion projectId={projectId} signature={signature} />
 		case "stream":
-			return <Stream nftId={nftId} signature={signature || ""} />
+			return <Stream nftId={nftId} signature={signature} />
 		case "collectibles":
 			return (
 				<Collectibles
-					projectId=""
+					projectId={projectId}
 					nftId={nftId}
-					signature={signature || ""}
-					message={message || ""}
+					signature={signature}
+					message={message}
 				/>
 			)
 		case "quest":
