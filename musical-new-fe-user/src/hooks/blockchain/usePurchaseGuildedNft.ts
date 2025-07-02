@@ -7,7 +7,7 @@ import { useActiveAccount } from "thirdweb/react"
 import { toast } from "react-toastify"
 
 import { client } from "@/config"
-import { apiRequest } from "@/app/api/query"
+import { apiRequest } from "@/helpers"
 
 const contract = getContract({
 	client,
