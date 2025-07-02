@@ -34,22 +34,27 @@ export const usePurchaseGuildedNft = () => {
 
 	const purchaseGuildedNFT = async ({
 		listingId,
-		tokenId,
+		nftDetails,
 		networkChainId,
 		maticPrice
 	}: {
 		listingId: string
-		tokenId: string
+		nftDetails: any
 		networkChainId: string
 		maticPrice?: number
 	}) => {
-		if (!contract) {
-			console.error("Contract not initialized")
+		if (!activeAccount?.address) {
+			toast.error("Please connect your wallet")
 			return
 		}
 
-		if (!activeAccount?.address) {
-			toast.error("Please connect your wallet")
+		if (!listingId || !nftDetails?.tokenId || !networkChainId) {
+			toast.error("Missing required parameters: listingId, tokenId, or networkChainId")
+			return
+		}
+
+		if (!contract) {
+			console.error("Contract not initialized")
 			return
 		}
 
@@ -60,7 +65,7 @@ export const usePurchaseGuildedNft = () => {
 				method: "POST",
 				payload: {
 					buyer: activeAccount.address,
-					tokenId: parseInt(tokenId),
+					tokenId: parseInt(nftDetails.tokenId),
 					networkChainId: networkChainId
 				}
 			});
