@@ -52,7 +52,7 @@ export const usePurchaseGuildedNft = () => {
 
 		try {
 			// Call the signature API to get signature, timestamp, and maxPrice
-			const signatureResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/guilded-nft/signature`, {
+			const signatureResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/guilded-nft/signature`, {
 				method: "POST",
 				headers: {
 					'Content-Type': 'application/json'
