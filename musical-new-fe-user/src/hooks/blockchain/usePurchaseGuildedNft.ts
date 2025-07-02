@@ -57,7 +57,7 @@ export const usePurchaseGuildedNft = () => {
 			const signatureResponse = await apiRequest({
 				url: `/guilded-nft/signature`,
 				method: "POST",
-				data: {
+				payload: {
 					buyer: activeAccount.address,
 					tokenId: parseInt(tokenId),
 					networkChainId: networkChainId
