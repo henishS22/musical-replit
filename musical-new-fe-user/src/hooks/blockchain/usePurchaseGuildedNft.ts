@@ -6,6 +6,7 @@ import { useActiveAccount } from "thirdweb/react"
 import { toast } from "react-toastify"
 
 import { client } from "@/config"
+import { apiRequest } from "@/utils/api"
 
 const contract = getContract({
 	client,
@@ -53,28 +54,19 @@ export const usePurchaseGuildedNft = () => {
 		}
 
 		try {
-			// Call the signature API to get signature, timestamp, and maxPrice
-			const signatureResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}guilded-nft/signature`, {
+			// Call the signature API to get signature, timestamp, and maxPrice using apiRequest helper
+			const signatureData = await apiRequest({
+				url: "guilded-nft/signature",
 				method: "POST",
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
+				payload: {
 					buyer: activeAccount.address,
 					tokenId: parseInt(tokenId),
 					networkChainId: networkChainId
-				})
+				}
 			});
 
-			if (!signatureResponse.ok) {
+			if (!signatureData) {
 				throw new Error("Failed to get signature from server")
-			}
-
-			const signatureData = await signatureResponse.json()
-
-			if (!signatureData?.signature || !signatureData?.timestamp || !signatureData?.maxPrice) {
-				toast.error("Invalid signature response")
-				return
 			}
 
 			const { signature, timestamp, maxPrice } = signatureData
