@@ -1,20 +1,19 @@
 
 "use client"
 
-import { defineChain, getContract, prepareContractCall, toWei } from "thirdweb"
+import { defineChain, getContract, prepareContractCall } from "thirdweb"
 import { useSendTransaction } from "thirdweb/react"
 import { useActiveAccount } from "thirdweb/react"
 import { toast } from "react-toastify"
 
 import { client } from "@/config"
-import { apiRequest } from "@/helpers"
 
 const contract = getContract({
 	client,
 	chain: defineChain(
 		Number(process.env.NEXT_PUBLIC_GUILDED_MARKETPLACE_CONTRACT_CHAIN) || 84532
 	),
-	address: process.env.NEXT_PUBLIC_GUILDED_MARKETPLACE_CONTRACT_ADDRESS || ""
+	address: process.env.NEXT_PUBLIC_GUILDED_MARKETPLACE_CONTRACT_ADDRESS || "0x067578da19fD94c8F1c9A8CEBbcC8ADB6421dae4"
 })
 
 export const usePurchaseGuildedNft = () => {
@@ -54,22 +53,25 @@ export const usePurchaseGuildedNft = () => {
 
 		try {
 			// Call the signature API to get signature, timestamp, and maxPrice
-			const signatureResponse = await apiRequest({
-				url: `/guilded-nft/signature`,
+			const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/guilded-nft/signature`, {
 				method: "POST",
-				payload: {
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
 					buyer: activeAccount.address,
 					tokenId: parseInt(tokenId),
 					networkChainId: networkChainId
-				}
+				})
 			})
 
-			if (!signatureResponse?.data) {
+			if (!response.ok) {
 				toast.error("Failed to get signature for purchase")
 				return
 			}
 
-			const { signature, timestamp, maxPrice } = signatureResponse.data
+			const signatureData = await response.json()
+			const { signature, timestamp, maxPrice } = signatureData
 
 			// Prepare the contract call with the new purchaseGuildedNFT method
 			const transaction = prepareContractCall({
