@@ -1,9 +1,8 @@
+
 "use client"
 
 import { defineChain, getContract, prepareContractCall, toWei } from "thirdweb"
 import { useSendTransaction } from "thirdweb/react"
-import { useActiveAccount } from "thirdweb/react"
-import { toast } from "react-toastify"
 
 import { client } from "@/config"
 
@@ -29,66 +28,28 @@ export const usePurchaseGuildedNft = () => {
 		}
 	})
 
-	const activeAccount = useActiveAccount()
-
-	const purchaseGuildedNFT = async ({
+	const purchaseGuildedNFT = ({
 		listingId,
-		tokenId,
-		networkChainId
+		amount,
+		maticPrice
 	}: {
 		listingId: string
-		tokenId: string
-		networkChainId: string
+		amount: string
+		maticPrice: number
 	}) => {
 		if (!contract) {
 			console.error("Contract not initialized")
 			return
 		}
 
-		if (!activeAccount?.address) {
-			toast.error("Please connect your wallet")
-			return
-		}
-
-		try {
-			// Call the signature API to get signature, timestamp, and maxPrice
-			const signatureResponse = await fetch(`/guilded-nft/signature`, {
-				method: "POST",
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					buyer: activeAccount.address,
-					tokenId: parseInt(tokenId),
-					networkChainId: networkChainId
-				})
-			}).then(res => res.json());
-
-			if (!signatureResponse?.data) {
-				toast.error("Failed to get signature for purchase")
-				return
-			}
-
-			const { signature, timestamp, maxPrice } = signatureResponse.data
-
-			// Prepare the contract call with the new purchaseGuildedNFT method
-			const transaction = prepareContractCall({
-				contract,
-				method: "function purchaseGuildedNFT(uint256 _guildedListingId, uint256 _maxPrice, uint256 _timestamp, bytes _signature) payable",
-				params: [
-					BigInt(listingId),
-					BigInt(maxPrice),
-					BigInt(timestamp),
-					signature
-				],
-				value: BigInt(maxPrice)
-			})
-
-			sendTx(transaction)
-		} catch (error: any) {
-			console.error("Error purchasing Guilded NFT:", error)
-			toast.error(error?.message || "Failed to purchase NFT")
-		}
+		const transaction = prepareContractCall({
+			contract,
+			method:
+				"function purchaseNFT(uint256 _listingId, uint256 _amount) payable",
+			params: [BigInt(listingId), BigInt(amount)],
+			value: toWei((maticPrice * Number(amount)).toString())
+		})
+		sendTx(transaction)
 	}
 
 	return { purchaseGuildedNFT, isPending, error, data }
