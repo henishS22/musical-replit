@@ -10,6 +10,8 @@ import { generateQueryParams } from "@/helpers"
 import { Button, Skeleton, Card, CardBody, CardFooter } from "@nextui-org/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 
+import { BUY_NFT_MODAL } from "@/constant/modalType"
+import { useModalStore } from "@/stores"
 import { NoDataFound } from "../ui"
 
 interface GuildedNFTProps {
@@ -35,6 +37,7 @@ const GuildedNFTSkeleton = () => (
 const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) => {
 	const router = useRouter()
 	const { ref: loadMoreRef, inView } = useInView()
+	const { showCustomModal } = useModalStore()
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
 		useInfiniteQuery({
