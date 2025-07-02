@@ -77,6 +77,12 @@ export class GuildedNft {
 
     @Prop({ required: false, default: false })
     isRegisterForAirDrop: boolean;
+
+    @Prop({ required: false })
+    isGuildedNFT: boolean;
+
+    @Prop({ required: false })
+    priceInUsd: string;
 }
 
 export const GuildedNftSchema = SchemaFactory.createForClass(GuildedNft);
