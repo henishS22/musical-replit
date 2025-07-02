@@ -111,8 +111,8 @@ export default function BuyNFTModal() {
 						if (isGuildedNFT) {
 							purchaseGuildedNFT({
 								listingId: tempCustomModalData?.listingId,
-								amount: quantity,
-								maticPrice: Number(tempCustomModalData?.maticPrice) * Number(quantity)
+								tokenId: tempCustomModalData?.tokenId,
+								networkChainId: tempCustomModalData?.chainId || "84532"
 							})
 						} else {
 							purchaseNFT({
