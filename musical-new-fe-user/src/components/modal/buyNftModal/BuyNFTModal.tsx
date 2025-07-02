@@ -10,6 +10,7 @@ import { useActiveWallet } from "thirdweb/react"
 
 import { useModalStore } from "@/stores"
 import { usePurchaseNft } from "@/hooks/blockchain/usePurchaseNft"
+import { usePurchaseGuildedNft } from "@/hooks/blockchain/usePurchaseGuildedNft"
 
 import CustomModal from "../CustomModal"
 
@@ -18,24 +19,31 @@ export default function BuyNFTModal() {
 		useModalStore()
 	const [quantity, setQuantity] = useState("1")
 	const { purchaseNFT, isPending, error, data } = usePurchaseNft()
+	const { purchaseGuildedNFT, isPending: isGuildedPending, error: guildedError, data: guildedData } = usePurchaseGuildedNft()
 	const activeWallet = useActiveWallet()
 	const queryClient = useQueryClient()
+	
+	const isGuildedNFT = tempCustomModalData?.isGuildedNFT
+	const currentPending = isGuildedNFT ? isGuildedPending : isPending
+	const currentError = isGuildedNFT ? guildedError : error
+	const currentData = isGuildedNFT ? guildedData : data
 
 	useEffect(() => {
-		if (error) {
-			if (error.message?.includes("Execution Reverted"))
+		if (currentError) {
+			if (currentError.message?.includes("Execution Reverted"))
 				toast.error("Insufficient balance in your wallet")
-			else toast.error(error.message)
+			else toast.error(currentError.message)
 		}
-		if (data) {
+		if (currentData) {
 			hideCustomModal()
 			toast.success("Token purchased successfully")
 			queryClient.invalidateQueries({ queryKey: ["nftDetails"] })
 			queryClient.invalidateQueries({ queryKey: ["exchangeNftDetails"] })
 			queryClient.invalidateQueries({ queryKey: ["nftData"] })
+			queryClient.invalidateQueries({ queryKey: ["guildedNftDetails"] })
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [error, data])
+	}, [currentError, currentData])
 
 	return (
 		<CustomModal
@@ -100,17 +108,25 @@ export default function BuyNFTModal() {
 				<Button
 					className="max-w-fit flex justify-self-center mx-auto text-[13px] font-bold leading-6 tracking-[-0.01em] bg-btnColor text-white py-2 px-4 rounded-lg hover:bg-btnColorHover"
 					onPress={() => {
-						purchaseNFT({
-							listingId: tempCustomModalData?.listingId,
-							amount: quantity,
-							price: Number(tempCustomModalData?.price) * Number(quantity)
-						})
+						if (isGuildedNFT) {
+							purchaseGuildedNFT({
+								listingId: tempCustomModalData?.listingId,
+								amount: quantity,
+								maticPrice: Number(tempCustomModalData?.maticPrice) * Number(quantity)
+							})
+						} else {
+							purchaseNFT({
+								listingId: tempCustomModalData?.listingId,
+								amount: quantity,
+								price: Number(tempCustomModalData?.price) * Number(quantity)
+							})
+						}
 					}}
-					isLoading={isPending}
+					isLoading={currentPending}
 					isDisabled={
 						Number(quantity) > Number(tempCustomModalData?.quantity) ||
 						Number(quantity) <= 0 ||
-						isPending
+						currentPending
 					}
 				>
 					Purchase Token

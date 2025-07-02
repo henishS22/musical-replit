@@ -1,3 +1,4 @@
 export * from "./useMintAndList"
 export * from "./useFetchTokenId"
-export * from "./usePurchaseNft"
+export { usePurchaseNft } from "./usePurchaseNft"
+export { usePurchaseGuildedNft } from "./usePurchaseGuildedNft"
