@@ -124,8 +124,7 @@ export default function BuyNFTModal() {
 					}}
 					isLoading={currentPending}
 					isDisabled={
-						Number(quantity) > Number(tempCustomModalData?.quantity) ||
-						Number(quantity) <= 0 ||
+						(isGuildedNFT ? false : (Number(quantity) > Number(tempCustomModalData?.quantity) || Number(quantity) <= 0)) ||
 						currentPending
 					}
 				>
