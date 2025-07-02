@@ -1,94 +1,235 @@
 "use client"
 
-import React from "react"
-import Image from "next/image"
-import { Button, Card, CardBody, CardFooter } from "@nextui-org/react"
+import { useState } from "react"
+import { toast } from "react-toastify"
+import Image, { StaticImageData } from "next/image"
+
+import { verifyTokenOwnership } from "@/app/api/mutation"
+import { POLYGONSCAN_LOGO, PROFILE_IMAGE } from "@/assets"
+import { Button } from "@nextui-org/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useActiveWallet } from "thirdweb/react"
+
+import { useUserStore } from "@/stores"
+import { useFetchTokenId } from "@/hooks/blockchain"
+
+import NFTCard from "../profile/tokenTab/NftCard"
+import BuyNftCardSkeleton from "./NFTCardSkeleton"
 
 interface BuyNftCardProps {
-	title?: string
-	description?: string
-	artworkUrl?: string
+	imageUrl: StaticImageData | string
+	creatorImage?: StaticImageData | string
+	creatorName: string
+	title: string
+	description: string
+	isOwned?: boolean
 	onBuyNow?: () => void
 	isLoading?: boolean
 	tokenId: string
+	nftId?: string
 	price?: string
 	content?: React.ReactNode
 	unlockText?: {
-		title: string
-		description: string
+		onClick: () => void
 	}
+	setSignature?: (signature: string) => void
+	setMessage?: (message: string) => void
+	showVerifyButton: boolean
+	ownerId: string
+	txHash?: string
+	ownedNftImageUrl?: StaticImageData | string
+	ownedCreatorImage?: StaticImageData | string
+	ownedCreatorName?: string
+	ownedNftTitle?: string
 }
 
-const BuyNftCard: React.FC<BuyNftCardProps> = ({
+export default function BuyNftCard({
+	imageUrl,
+	creatorImage = PROFILE_IMAGE,
+	creatorName,
 	title,
-	artworkUrl,
 	description,
 	price,
 	tokenId,
+	nftId,
 	onBuyNow,
 	isLoading = false,
 	content,
-	unlockText
-}) => {
+	setSignature,
+	setMessage,
+	showVerifyButton = true,
+	ownerId,
+	txHash,
+	ownedNftImageUrl,
+	ownedCreatorImage,
+	ownedCreatorName,
+	ownedNftTitle
+}: BuyNftCardProps) {
+	const [isLoadingUnlock, setIsLoadingUnlock] = useState(false)
+	const activeWallet = useActiveWallet()
+	const queryClient = useQueryClient()
+	const { userData } = useUserStore()
+
+	const { data: tokenIdData } = useFetchTokenId()
+	const { mutate, isPending } = useMutation({
+		mutationFn: verifyTokenOwnership,
+		onSuccess: (data, { signature, message }) => {
+			if (data) {
+				if (data?.isOwner) {
+					setSignature?.(signature)
+					setMessage?.(message)
+					queryClient.invalidateQueries({ queryKey: ["studioTracks"] })
+					queryClient.invalidateQueries({ queryKey: ["collectibles"] })
+				} else {
+					toast.error("You don't own this token")
+				}
+			}
+		},
+		onError: (error) => console.error("Verification failed:", error)
+	})
+
+	const contractAddress = process.env
+		.NEXT_PUBLIC_TOKEN_CONTRACT_ADDRESS as string
+	const chainId = process.env.NEXT_PUBLIC_TOKEN_CONTRACT_CHAIN as string
+
+	const unlockToken = async () => {
+		try {
+			setIsLoadingUnlock(true)
+			if (
+				tokenIdData &&
+				tokenIdData > 0 &&
+				Number(tokenIdData) < Number(tokenId)
+			) {
+				throw new Error("NFT not found")
+			}
+
+			if (!activeWallet) {
+				toast.error("Wallet not connected")
+				return
+			}
+
+			const message = `Hello! Musical is verifying your token ownership. Contract: ${contractAddress}, Token ID: ${tokenId}`
+			const signature = (await activeWallet
+				.getAccount()
+				?.signMessage({ message })) as string
+
+			mutate({ signature, message, tokenId, contractAddress, chainId })
+		} catch (error) {
+			console.error("Error unlocking token:", error)
+		} finally {
+			setIsLoadingUnlock(false)
+		}
+	}
+
+	if (isLoading) {
+		return <BuyNftCardSkeleton />
+	}
+
 	return (
-		<Card className="w-full max-w-sm mx-auto">
-			<CardBody className="p-0">
-				<div className="relative">
+		<div className="bg-white rounded-xl p-6 mb-6 shadow-lg">
+			<div className="flex gap-10">
+				<div className="w-[466px] h-[472px] relative">
 					<Image
-						src={artworkUrl || "/next.svg"}
-						alt={title || "NFT"}
-						width={400}
-						height={300}
-						className="w-full h-64 object-cover rounded-t-lg"
-						priority
+						src={imageUrl}
+						alt="NFT"
+						fill
+						className="object-cover rounded-xl"
 					/>
 				</div>
-			</CardBody>
-			<CardFooter className="flex flex-col items-start gap-4 p-6">
-				<div className="w-full">
-					<h3 className="font-bold text-xl mb-2">{title}</h3>
-					{description && (
-						<p className="text-gray-600 text-sm mb-4 line-clamp-3">{description}</p>
-					)}
-
-					{unlockText && (
-						<div className="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
-							<h4 className="font-semibold text-green-800 mb-1">{unlockText.title}</h4>
-							<p className="text-green-700 text-sm">{unlockText.description}</p>
+				<div className="flex-1 flex flex-col gap-10">
+					<div className="space-y-3">
+						<div className="flex items-center gap-3">
+							<div className="w-8 h-8 relative">
+								<Image
+									src={creatorImage || PROFILE_IMAGE}
+									alt="Creator"
+									fill
+									className="object-cover rounded-full"
+								/>
+							</div>
+							<span className="font-medium">{creatorName}</span>
 						</div>
-					)}
-
-					{content && (
-						<div className="mb-4">
-							{content}
-						</div>
-					)}
-
-					<div className="flex items-center justify-between w-full mb-4">
+						<h1 className="font-semibold text-[32px] leading-[40px] tracking-[-0.03em] text-textPrimary">
+							{title}
+						</h1>
+						<p className="font-medium text-[20px] leading-[32px] tracking-[-0.02em] text-[#6F767E]">
+							{description}
+						</p>
+					</div>
+					<div>
 						{price && (
-							<div className="text-right">
-								<p className="text-sm text-gray-500">Price</p>
-								<p className="font-bold text-lg">{price}</p>
+							<div className="font-semibold text-[32px] leading-[40px] tracking-[-0.03em] mb-4">
+								{price} MATIC
 							</div>
 						)}
-						<div className="text-right">
-							<p className="text-sm text-gray-500">Token ID</p>
-							<p className="font-medium">#{tokenId}</p>
-						</div>
+
+						{ownedNftImageUrl &&
+							ownedCreatorImage &&
+							ownedCreatorName &&
+							ownedNftTitle && (
+								<div className="flex flex-col items-start gap-3 bg-hoverGray rounded-xl p-4 mb-4 max-w-fit">
+									<span className="font-medium text-[20px] leading-[32px] tracking-[-0.02em] text-textPrimary">
+										Tokens for exchange
+									</span>
+									<div className="flex flex-wrap gap-2 scrollbar overflow-x-auto max-h-[320px] !pr-0">
+										<NFTCard
+											artworkUrl={ownedNftImageUrl}
+											title={ownedNftTitle}
+											artist={ownedCreatorName}
+											id={tokenId}
+											key={tokenId}
+										/>
+									</div>
+								</div>
+							)}
+
+						{content ? (
+							content
+						) : (
+							<Button
+								onPress={onBuyNow}
+								className="w-fit bg-btnColor text-white text-[15px] font-bold py-3 px-[88px] rounded-xl mt-1"
+								isDisabled={
+									isLoadingUnlock || isPending || ownerId === userData?._id
+								}
+							>
+								Buy Now
+							</Button>
+						)}
+
+						{showVerifyButton && (
+							<p className="font-medium text-[18px] leading-[32px] tracking-[-0.02em] mt-2 text-textGray flex items-center gap-2">
+								Already own this token?{" "}
+								<Button
+									className="text-waveformBlue cursor-pointer bg-transparent p-0 justify-start"
+									onPress={unlockToken}
+									isLoading={isLoadingUnlock || isPending}
+								>
+									Unlock
+								</Button>
+							</p>
+						)}
+					</div>
+					<div
+						className="font-medium text-[20px] leading-[32px] tracking-[-0.02em] text-waveformBlue flex items-center gap-2 cursor-pointer"
+						onClick={() =>
+							window.open(
+								`${process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL}${txHash}`,
+								"_blank"
+							)
+						}
+					>
+						View this token on
+						<Image
+							src={POLYGONSCAN_LOGO}
+							alt="Polygonscan"
+							width={36}
+							height={36}
+						/>
+						Polygonscan
 					</div>
 				</div>
-
-				<Button
-					onPress={onBuyNow}
-					isLoading={isLoading}
-					disabled={isLoading}
-					className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200"
-				>
-					{isLoading ? "Processing..." : "Buy Now"}
-				</Button>
-			</CardFooter>
-		</Card>
+			</div>
+		</div>
 	)
 }
-
-export default BuyNftCard

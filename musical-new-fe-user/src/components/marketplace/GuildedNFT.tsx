@@ -9,10 +9,9 @@ import { fetchGuildedNfts } from "@/app/api/query"
 import { generateQueryParams } from "@/helpers"
 import { Button, Skeleton, Card, CardBody, CardFooter } from "@nextui-org/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { toast } from "react-toastify"
 
-import { usePurchaseGuildedNft } from "@/hooks/blockchain"
-import { useActiveAccount } from "thirdweb/react"
+import { BUY_NFT_MODAL } from "@/constant/modalType"
+import { useModalStore } from "@/stores"
 import { NoDataFound } from "../ui"
 
 interface GuildedNFTProps {
@@ -38,8 +37,7 @@ const GuildedNFTSkeleton = () => (
 const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) => {
 	const router = useRouter()
 	const { ref: loadMoreRef, inView } = useInView()
-	const { purchaseGuildedNFT, isPending } = usePurchaseGuildedNft()
-	const activeAccount = useActiveAccount()
+	const { showCustomModal } = useModalStore()
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
 		useInfiniteQuery({
@@ -80,20 +78,6 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) =
 
 	const handleNftClick = (nftId: string) => {
 		router.push(`/buy-nft/${nftId}`)
-	}
-
-	const handleGuildedNftPurchase = async (nft: any) => {
-		if (!activeAccount?.address) {
-			toast.error("Please connect your wallet")
-			return
-		}
-
-		await purchaseGuildedNFT({
-			listingId: nft.listingId,
-			nftId: nft._id,
-			networkChainId: nft.chainId || "84532", // Default to Base Sepolia
-			activeAccount
-		})
 	}
 
 	const formatPrice = (nft: any) => {
@@ -161,7 +145,16 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) =
 							key={nft._id || index}
 							className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"
 							isPressable
-							onPress={() => handleGuildedNftPurchase(nft)}
+							onPress={() =>
+						showCustomModal(BUY_NFT_MODAL, {
+							listingId: nft.listingId,
+							tokenId: nft.tokenId,
+							quantity: nft.initialSupply || 1,
+							price: nft.price,
+							chainId: nft.chainId,
+							isGuildedNFT: true
+						})
+					}
 						>
 							<CardBody className="p-0">
 								<Image
