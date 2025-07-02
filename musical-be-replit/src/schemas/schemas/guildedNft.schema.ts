@@ -82,7 +82,13 @@ export class GuildedNft {
     isGuildedNFT: boolean;
 
     @Prop({ required: false })
-    priceInUsd: string;
+    ethereumPrice: Number;
+
+    @Prop({ required: false })
+    maticPrice: Number;
+
+    @Prop({ required: false })
+    priceInUsd: Number;
 }
 
 export const GuildedNftSchema = SchemaFactory.createForClass(GuildedNft);

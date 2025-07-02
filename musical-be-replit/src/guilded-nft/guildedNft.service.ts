@@ -120,15 +120,12 @@ export class GuildedNftService {
     if (!nft) {
       return resourceNotFoundError('NFT');
     }
-    console.log('nft', nft);
     const prices = await this.nftsService.getCoinMarketCapPrices();
 
-    if (nft.isFirstTimeBuy && nft['isGuildedNFT']) {
-      console.log('Inside IF ......');
-      nft['ethereumPrice'] = Number(499 / prices?.ethereum);
-      nft['maticPrice'] = Number(499 / prices?.polygon);
-      nft['priceInUsd'] = '499';
-      console.log('NFT Details: ', nft);
+    if (nft.isFirstTimeBuy && nft.isGuildedNFT) {
+      nft.ethereumPrice = Number(499 / prices?.ethereum);
+      nft.maticPrice = Number(499 / prices?.polygon);
+      nft.priceInUsd = 499;
     }
 
     return nft;

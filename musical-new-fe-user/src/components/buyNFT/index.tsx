@@ -83,7 +83,7 @@ export default function BuyNFTDetails() {
 					creatorName={nftDetails?.[0]?.user?.name || ""}
 					title={nftDetails?.[0]?.title || ""}
 					description={nftDetails?.[0]?.description || ""}
-					price={`$ ${Number(nftDetails?.[0]?.priceInUsd || 0).toFixed(2)}` || "0.00 USD"}
+					price={`$ ${nftDetails?.[0]?.priceInUsd?.toFixed(2) || "0.00"}` || "0.00 USD"}
 					onBuyNow={() => {
 						if (!activeWallet) {
 							toast.error(CONNECT_WALLET)
