@@ -1,48 +1,26 @@
 
 "use client"
 
-import { defineChain, getContract, prepareContractCall, toWei } from "thirdweb"
+import { defineChain, getContract, prepareContractCall } from "thirdweb"
 import { useSendTransaction } from "thirdweb/react"
-import { useActiveAccount } from "thirdweb/react"
 import { toast } from "react-toastify"
 
 import { client } from "@/config"
 import { apiRequest } from "@/helpers/apiHelpers"
 
-const contract = getContract({
-	client,
-	chain: defineChain(
-		Number(process.env.NEXT_PUBLIC_GUILDED_MARKETPLACE_CONTRACT_CHAIN) || 84532
-	),
-	address: process.env.NEXT_PUBLIC_GUILDED_MARKETPLACE_CONTRACT_ADDRESS || ""
-})
-
 export const usePurchaseGuildedNft = () => {
-	const {
-		mutate: sendTx,
-		isPending,
-		error,
-		data
-	} = useSendTransaction({
-		payModal: {
-			buyWithFiat: {
-				testMode: true // defaults to false
-			}
-		}
-	})
-
-	const activeAccount = useActiveAccount()
+	const { mutate: sendTx, isPending, error, data } = useSendTransaction()
 
 	const purchaseGuildedNFT = async ({
 		listingId,
 		nftId,
 		networkChainId,
-		maticPrice
+		activeAccount
 	}: {
 		listingId: string
 		nftId: string
 		networkChainId: string
-		maticPrice?: number
+		activeAccount: any
 	}) => {
 		if (!activeAccount?.address) {
 			toast.error("Please connect your wallet")
@@ -50,12 +28,7 @@ export const usePurchaseGuildedNft = () => {
 		}
 
 		if (!listingId || !nftId || !networkChainId) {
-			toast.error("Missing required parameters: listingId, nftId, or networkChainId")
-			return
-		}
-
-		if (!contract) {
-			console.error("Contract not initialized")
+			toast.error("Missing required parameters")
 			return
 		}
 
@@ -70,7 +43,7 @@ export const usePurchaseGuildedNft = () => {
 				throw new Error("Failed to fetch NFT details or tokenId not found")
 			}
 
-			// Call the signature API to get signature, timestamp, and maxPrice using apiRequest helper
+			// Call the signature API to get signature, timestamp, and maxPrice
 			const signatureData = await apiRequest({
 				url: "guilded-nft/signature",
 				method: "POST",
@@ -88,6 +61,26 @@ export const usePurchaseGuildedNft = () => {
 			const { signature, timestamp, maxPrice } = signatureData
 
 			console.log("Signature data received:", { signature, timestamp, maxPrice })
+
+			// Define the chain based on networkChainId
+			const chain = defineChain(parseInt(networkChainId))
+
+			// Get Guilded marketplace contract address based on chain
+			let contractAddress = ""
+			if (networkChainId === "84532") { // Base Sepolia
+				contractAddress = "0x067578da19fD94c8F1c9A8CEBbcC8ADB6421dae4"
+			} else if (networkChainId === "137") { // Polygon
+				contractAddress = "0x067578da19fD94c8F1c9A8CEBbcC8ADB6421dae4"
+			} else {
+				throw new Error("Unsupported network for Guilded NFT")
+			}
+
+			// Get contract instance
+			const contract = getContract({
+				client,
+				chain,
+				address: contractAddress
+			})
 
 			// Prepare the contract call with the purchaseGuildedNFT method
 			const transaction = prepareContractCall({
