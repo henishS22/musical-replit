@@ -34,11 +34,13 @@ export const usePurchaseGuildedNft = () => {
 	const purchaseGuildedNFT = async ({
 		listingId,
 		tokenId,
-		networkChainId
+		networkChainId,
+		maticPrice
 	}: {
 		listingId: string
 		tokenId: string
 		networkChainId: string
+		maticPrice?: number
 	}) => {
 		if (!contract) {
 			console.error("Contract not initialized")
@@ -62,16 +64,24 @@ export const usePurchaseGuildedNft = () => {
 					tokenId: parseInt(tokenId),
 					networkChainId: networkChainId
 				})
-			}).then(res => res.json());
+			});
 
-			if (!signatureResponse?.data) {
-				toast.error("Failed to get signature for purchase")
+			if (!signatureResponse.ok) {
+				throw new Error("Failed to get signature from server")
+			}
+
+			const signatureData = await signatureResponse.json()
+
+			if (!signatureData?.signature || !signatureData?.timestamp || !signatureData?.maxPrice) {
+				toast.error("Invalid signature response")
 				return
 			}
 
-			const { signature, timestamp, maxPrice } = signatureResponse.data
+			const { signature, timestamp, maxPrice } = signatureData
 
-			// Prepare the contract call with the new purchaseGuildedNFT method
+			console.log("Signature data received:", { signature, timestamp, maxPrice })
+
+			// Prepare the contract call with the purchaseGuildedNFT method
 			const transaction = prepareContractCall({
 				contract,
 				method: "function purchaseGuildedNFT(uint256 _guildedListingId, uint256 _maxPrice, uint256 _timestamp, bytes _signature) payable",
@@ -87,7 +97,7 @@ export const usePurchaseGuildedNft = () => {
 			sendTx(transaction)
 		} catch (error: any) {
 			console.error("Error purchasing Guilded NFT:", error)
-			toast.error(error?.message || "Failed to purchase NFT")
+			toast.error(error?.message || "Failed to purchase Guilded NFT")
 		}
 	}
 

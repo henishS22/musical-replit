@@ -157,7 +157,7 @@ export default function BuyNftCard({
 					<div>
 						{price && (
 							<div className="font-semibold text-[32px] leading-[40px] tracking-[-0.03em] mb-4">
-								{price}
+								{price} MATIC
 							</div>
 						)}
 

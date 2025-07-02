@@ -23,13 +23,10 @@ export default function BuyNFTModal() {
 	const activeWallet = useActiveWallet()
 	const queryClient = useQueryClient()
 
-	const isGuildedNFT = tempCustomModalData?.isGuildedNFT
+	const isGuildedNFT = tempCustomModalData?.isGuildedNFT === true
 	const currentPending = isGuildedNFT ? isGuildedPending : isPending
 	const currentError = isGuildedNFT ? guildedError : error
 	const currentData = isGuildedNFT ? guildedData : data
-
-	console.log("BuyNFTModal - isGuildedNFT:", isGuildedNFT)
-	console.log("BuyNFTModal - tempCustomModalData:", tempCustomModalData)
 
 	useEffect(() => {
 		if (currentError) {
@@ -111,26 +108,16 @@ export default function BuyNFTModal() {
 				<Button
 					className="max-w-fit flex justify-self-center mx-auto text-[13px] font-bold leading-6 tracking-[-0.01em] bg-btnColor text-white py-2 px-4 rounded-lg hover:bg-btnColorHover"
 					onPress={() => {
-						console.log("Purchase button clicked - isGuildedNFT:", isGuildedNFT)
 						if (isGuildedNFT) {
-							console.log("Calling purchaseGuildedNFT with:", {
-								listingId: tempCustomModalData?.listingId,
-								tokenId: tempCustomModalData?.tokenId,
-								networkChainId: tempCustomModalData?.chainId
-							})
+							// For Guilded NFTs, use the signature-based purchase flow
 							purchaseGuildedNFT({
 								listingId: tempCustomModalData?.listingId,
 								tokenId: tempCustomModalData?.tokenId,
-								networkChainId: tempCustomModalData?.chainId
+								networkChainId: tempCustomModalData?.chainId || "84532",
+								maticPrice: tempCustomModalData?.price
 							})
 						} else {
-							console.log("Calling purchaseNFT with:", {
-								listingId: tempCustomModalData?.listingId,
-								tokenId: tempCustomModalData?.tokenId,
-								price: tempCustomModalData?.price,
-								quantity: Number(quantity),
-								networkChainId: tempCustomModalData?.chainId
-							})
+							// For regular NFTs, use the existing purchase flow
 							purchaseNFT({
 								listingId: tempCustomModalData?.listingId,
 								tokenId: tempCustomModalData?.tokenId,
