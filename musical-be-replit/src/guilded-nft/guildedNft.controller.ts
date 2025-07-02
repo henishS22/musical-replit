@@ -64,8 +64,13 @@ export class GuildedNftController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/signature')
-  async signature(@Body() signDto: any): Promise<any> {
-    return this.guildedNftService.signature(signDto);
+  async signature(
+    @Param('owner') owner: string,
+    @Body() signDto: any
+  ) {
+    return this.guildedNftService.signature(owner, signDto);
   }
 
 }
+
+

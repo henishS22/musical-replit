@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo } from "react"
@@ -190,7 +191,7 @@ const GuildPassesPage: React.FC = () => {
 				{/* Header */}
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 					<h1 className="text-3xl font-bold text-textPrimary">Guild Passes</h1>
-
+					
 					{/* Filters */}
 					<div className="flex flex-col sm:flex-row gap-3">
 						<Input
@@ -237,16 +238,7 @@ const GuildPassesPage: React.FC = () => {
 												key={nft._id || index}
 												className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"
 												isPressable
-												onPress={() => {
-													showCustomModal(BUY_NFT_MODAL, {
-														listingId: nft.listingId,
-														tokenId: nft.tokenId,
-														quantity: nft.initialSupply || 1,
-														price: nft.price,
-														chainId: nft.chainId,
-														isGuildedNFT: true
-													})
-												}}
+												onPress={() => handleNftClick(nft._id)}
 											>
 												<CardBody className="p-0">
 													<Image
@@ -281,7 +273,7 @@ const GuildPassesPage: React.FC = () => {
 											</Card>
 										))}
 									</div>
-
+									
 									{currentHasNextPage && (
 										<div ref={loadMoreRef} className="mt-8">
 											{currentIsFetchingNextPage && (
@@ -299,7 +291,7 @@ const GuildPassesPage: React.FC = () => {
 							)}
 						</div>
 					</Tab>
-
+					
 					<Tab key="re-listed" title="Re-listed">
 						<div className="mt-6">
 							{currentIsLoading ? (
@@ -316,16 +308,7 @@ const GuildPassesPage: React.FC = () => {
 												key={nft._id || index}
 												className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"
 												isPressable
-												onPress={() => {
-													showCustomModal(BUY_NFT_MODAL, {
-														listingId: nft.listingId,
-														tokenId: nft.tokenId,
-														quantity: nft.initialSupply || 1,
-														price: nft.price,
-														chainId: nft.chainId,
-														isGuildedNFT: true
-													})
-												}}
+												onPress={() => handleNftClick(nft._id)}
 											>
 												<CardBody className="p-0">
 													<Image
@@ -360,7 +343,7 @@ const GuildPassesPage: React.FC = () => {
 											</Card>
 										))}
 									</div>
-
+									
 									{currentHasNextPage && (
 										<div ref={loadMoreRef} className="mt-8">
 											{currentIsFetchingNextPage && (

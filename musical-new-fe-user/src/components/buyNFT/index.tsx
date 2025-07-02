@@ -64,31 +64,6 @@ export default function BuyNFTDetails() {
 		? buyNftTabs
 		: buyNftTabs.filter((tab) => tab.id !== "discussion")
 
-	const onBuyNow = () => {
-		if (!activeWallet) {
-			toast.error(CONNECT_WALLET)
-			return
-		}
-
-		if (!nftDetails || nftDetails.length === 0) return
-
-		const nft = nftDetails[0]
-		const isGuildedNFT = nftDetails?.[0]?.isGuildedNFT;
-
-		showCustomModal({
-			customModalType: BUY_NFT_MODAL,
-			tempCustomModalData: {
-				quantity:
-					nftDetails?.[0]?.initialSupply -
-					nftDetails?.[0]?.quantityPurchased,
-				listingId: nftDetails?.[0]?.listingId,
-				price: isGuildedNFT ? nft.maticPrice : nft.price,
-				chainId: nft.chainId,
-				isGuildedNFT: isGuildedNFT
-			}
-		})
-	}
-
 	return (
 		<div className="min-h-screen relative">
 			{/* Background Image with Blur */}
@@ -109,7 +84,22 @@ export default function BuyNFTDetails() {
 					title={nftDetails?.[0]?.title || ""}
 					description={nftDetails?.[0]?.description || ""}
 					price={`$ ${nftDetails?.[0]?.priceInUsd?.toFixed(2) || "0.00"}` || "0.00 USD"}
-					onBuyNow={onBuyNow}
+					onBuyNow={() => {
+						if (!activeWallet) {
+							toast.error(CONNECT_WALLET)
+							return
+						}
+						showCustomModal({
+							customModalType: BUY_NFT_MODAL,
+							tempCustomModalData: {
+								quantity:
+									nftDetails?.[0]?.initialSupply -
+									nftDetails?.[0]?.quantityPurchased,
+								listingId: nftDetails?.[0]?.listingId,
+								price: nftDetails?.[0]?.price
+							}
+						})
+					}}
 					isLoading={isNftDetailsFetching}
 					tokenId={nftDetails?.[0]?.tokenId}
 					setSignature={setSignature}

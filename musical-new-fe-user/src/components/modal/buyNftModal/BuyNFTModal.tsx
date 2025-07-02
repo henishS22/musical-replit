@@ -22,8 +22,8 @@ export default function BuyNFTModal() {
 	const { purchaseGuildedNFT, isPending: isGuildedPending, error: guildedError, data: guildedData } = usePurchaseGuildedNft()
 	const activeWallet = useActiveWallet()
 	const queryClient = useQueryClient()
-
-	const isGuildedNFT = tempCustomModalData?.isGuildedNFT === true
+	
+	const isGuildedNFT = tempCustomModalData?.isGuildedNFT
 	const currentPending = isGuildedNFT ? isGuildedPending : isPending
 	const currentError = isGuildedNFT ? guildedError : error
 	const currentData = isGuildedNFT ? guildedData : data
@@ -109,27 +109,23 @@ export default function BuyNFTModal() {
 					className="max-w-fit flex justify-self-center mx-auto text-[13px] font-bold leading-6 tracking-[-0.01em] bg-btnColor text-white py-2 px-4 rounded-lg hover:bg-btnColorHover"
 					onPress={() => {
 						if (isGuildedNFT) {
-							// For Guilded NFTs, use the signature-based purchase flow
 							purchaseGuildedNFT({
 								listingId: tempCustomModalData?.listingId,
-								tokenId: tempCustomModalData?.tokenId,
-								networkChainId: tempCustomModalData?.chainId || "84532",
-								maticPrice: tempCustomModalData?.price
+								amount: quantity,
+								maticPrice: Number(tempCustomModalData?.maticPrice) * Number(quantity)
 							})
 						} else {
-							// For regular NFTs, use the existing purchase flow
 							purchaseNFT({
 								listingId: tempCustomModalData?.listingId,
-								tokenId: tempCustomModalData?.tokenId,
-								price: tempCustomModalData?.price,
-								quantity: Number(quantity),
-								networkChainId: tempCustomModalData?.chainId
+								amount: quantity,
+								price: Number(tempCustomModalData?.price) * Number(quantity)
 							})
 						}
 					}}
 					isLoading={currentPending}
 					isDisabled={
-						(isGuildedNFT ? false : (Number(quantity) > Number(tempCustomModalData?.quantity) || Number(quantity) <= 0)) ||
+						Number(quantity) > Number(tempCustomModalData?.quantity) ||
+						Number(quantity) <= 0 ||
 						currentPending
 					}
 				>

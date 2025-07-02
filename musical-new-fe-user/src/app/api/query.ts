@@ -1112,20 +1112,3 @@ export const fetchReListedNfts = async (queryParams = "") => {
 	})
 	return response?.data
 }
-
-export const getGuildedNftSignature = async (data: {
-	buyer: string
-	tokenId: number
-	networkChainId: string
-}) => {
-	const response = await apiRequest<ApiResponse<{
-		signature: string
-		timestamp: number
-		maxPrice: string
-	}>>({
-		url: `/guilded-nft/signature`,
-		method: "POST",
-		data
-	})
-	return response?.data
-}

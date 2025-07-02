@@ -10,8 +10,6 @@ import { generateQueryParams } from "@/helpers"
 import { Button, Skeleton, Card, CardBody, CardFooter } from "@nextui-org/react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 
-import { BUY_NFT_MODAL } from "@/constant/modalType"
-import { useModalStore } from "@/stores"
 import { NoDataFound } from "../ui"
 
 interface GuildedNFTProps {
@@ -37,7 +35,6 @@ const GuildedNFTSkeleton = () => (
 const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) => {
 	const router = useRouter()
 	const { ref: loadMoreRef, inView } = useInView()
-	const { showCustomModal } = useModalStore()
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
 		useInfiniteQuery({
@@ -145,16 +142,7 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) =
 							key={nft._id || index}
 							className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"
 							isPressable
-							onPress={() =>
-						showCustomModal(BUY_NFT_MODAL, {
-							listingId: nft.listingId,
-							tokenId: nft.tokenId,
-							quantity: nft.initialSupply || 1,
-							price: nft.price,
-							chainId: nft.chainId,
-							isGuildedNFT: true
-						})
-					}
+							onPress={() => handleNftClick(nft._id)}
 						>
 							<CardBody className="p-0">
 								<Image

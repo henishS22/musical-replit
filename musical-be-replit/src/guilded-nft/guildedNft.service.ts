@@ -332,7 +332,7 @@ export class GuildedNftService {
     return Number(nonce);
   }
 
-  async signature(signDto: any) {
+  async signature(owner: string, signDto: any) {
     const { buyer, tokenId, networkChainId } = signDto;
     const marketplace = '0x067578da19fD94c8F1c9A8CEBbcC8ADB6421dae4';
     const privateKey =
