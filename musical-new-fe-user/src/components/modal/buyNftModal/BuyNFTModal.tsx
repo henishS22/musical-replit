@@ -9,24 +9,10 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useActiveWallet } from "thirdweb/react"
 
 import { useModalStore } from "@/stores"
-import { usePurchaseNft } from "@/hooks/blockchain"
+import { usePurchaseNft } from "@/hooks/blockchain/usePurchaseNft"
+import { usePurchaseGuildedNft } from "@/hooks/blockchain/usePurchaseGuildedNft"
 
-// Dynamic import for Guilded NFT hook to avoid compilation issues
-const usePurchaseGuildedNft = () => {
-	try {
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const { usePurchaseGuildedNft: hook } = require("@/hooks/blockchain/usePurchaseGuildedNft")
-		return hook()
-	} catch (error) {
-		console.warn("Guilded NFT hook not available:", error)
-		return {
-			purchaseGuildedNFT: () => toast.error("Guilded NFT functionality not available"),
-			isPending: false,
-			error: null,
-			data: null
-		}
-	}
-}
+import CustomModal from "../CustomModal"
 
 export default function BuyNFTModal() {
 	const { hideCustomModal, customModalType, tempCustomModalData } =
@@ -36,7 +22,7 @@ export default function BuyNFTModal() {
 	const { purchaseGuildedNFT, isPending: isGuildedPending, error: guildedError, data: guildedData } = usePurchaseGuildedNft()
 	const activeWallet = useActiveWallet()
 	const queryClient = useQueryClient()
-
+	
 	const isGuildedNFT = tempCustomModalData?.isGuildedNFT
 	const currentPending = isGuildedNFT ? isGuildedPending : isPending
 	const currentError = isGuildedNFT ? guildedError : error
