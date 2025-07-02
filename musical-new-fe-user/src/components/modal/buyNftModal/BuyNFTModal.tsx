@@ -22,7 +22,7 @@ export default function BuyNFTModal() {
 	const { purchaseGuildedNFT, isPending: isGuildedPending, error: guildedError, data: guildedData } = usePurchaseGuildedNft()
 	const activeWallet = useActiveWallet()
 	const queryClient = useQueryClient()
-	
+
 	const isGuildedNFT = tempCustomModalData?.isGuildedNFT
 	const currentPending = isGuildedNFT ? isGuildedPending : isPending
 	const currentError = isGuildedNFT ? guildedError : error
@@ -111,17 +111,32 @@ export default function BuyNFTModal() {
 				<Button
 					className="max-w-fit flex justify-self-center mx-auto text-[13px] font-bold leading-6 tracking-[-0.01em] bg-btnColor text-white py-2 px-4 rounded-lg hover:bg-btnColorHover"
 					onPress={() => {
+						console.log("Purchase button clicked - isGuildedNFT:", isGuildedNFT)
 						if (isGuildedNFT) {
+							console.log("Calling purchaseGuildedNFT with:", {
+								listingId: tempCustomModalData?.listingId,
+								tokenId: tempCustomModalData?.tokenId,
+								networkChainId: tempCustomModalData?.chainId
+							})
 							purchaseGuildedNFT({
 								listingId: tempCustomModalData?.listingId,
 								tokenId: tempCustomModalData?.tokenId,
-								networkChainId: tempCustomModalData?.chainId || "84532"
+								networkChainId: tempCustomModalData?.chainId
 							})
 						} else {
+							console.log("Calling purchaseNFT with:", {
+								listingId: tempCustomModalData?.listingId,
+								tokenId: tempCustomModalData?.tokenId,
+								price: tempCustomModalData?.price,
+								quantity: Number(quantity),
+								networkChainId: tempCustomModalData?.chainId
+							})
 							purchaseNFT({
 								listingId: tempCustomModalData?.listingId,
-								amount: quantity,
-								price: Number(tempCustomModalData?.price) * Number(quantity)
+								tokenId: tempCustomModalData?.tokenId,
+								price: tempCustomModalData?.price,
+								quantity: Number(quantity),
+								networkChainId: tempCustomModalData?.chainId
 							})
 						}
 					}}

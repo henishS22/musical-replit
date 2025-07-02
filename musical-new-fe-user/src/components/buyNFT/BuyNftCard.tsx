@@ -185,7 +185,19 @@ export default function BuyNftCard({
 							content
 						) : (
 							<Button
-								onPress={onBuyNow}
+								onPress={() => {
+									if (!nftDetails || nftDetails.length === 0) return
+
+									const nft = nftDetails[0]
+									showCustomModal(BUY_NFT_MODAL, {
+										listingId: nft.listingId,
+										tokenId: nft.tokenId,
+										quantity: nft.initialSupply || 1,
+										price: nft.price,
+										chainId: nft.chainId,
+										isGuildedNFT: nft.isGuildedNFT || false
+									})
+								}}
 								className="w-fit bg-btnColor text-white text-[15px] font-bold py-3 px-[88px] rounded-xl mt-1"
 								isDisabled={
 									isLoadingUnlock || isPending || ownerId === userData?._id
