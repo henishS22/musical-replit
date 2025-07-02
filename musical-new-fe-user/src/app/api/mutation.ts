@@ -812,6 +812,24 @@ const markAsRead = async (payload: { id: string }) => {
 	return response?.data
 }
 
+const fetchGuildedSignature = async (payload: {
+	buyer: string
+	tokenId: number
+	networkChainId: string
+}) => {
+	const response = await apiRequest<ApiResponse<{
+		signature: string
+		timestamp: number
+		maxPrice: string
+	}>>({
+		url: `/guilded-nft/signature`,
+		method: "POST",
+		payload
+	})
+	return response?.data
+}
+
+
 export {
 	createUser,
 	validateToken,
@@ -880,5 +898,6 @@ export {
 	publishCreatorQuest,
 	unPublishCreatorQuest,
 	fileNameCheck,
-	updateCreatorQuest
+	updateCreatorQuest,
+	fetchGuildedSignature
 }

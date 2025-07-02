@@ -6,12 +6,13 @@ import Image from "next/image"
 import { useParams } from "next/navigation"
 
 import { fetchNftsById, fetchGuildedNftById } from "@/app/api/query"
+import { fetchGuildedSignature } from "@/app/api/mutation"
 import { PROFILE_IMAGE } from "@/assets"
 import { BUY_NFT_MODAL } from "@/constant/modalType"
 import { CONNECT_WALLET } from "@/constant/toastMessages"
 import { generateQueryParams } from "@/helpers"
 import { Tab, Tabs } from "@nextui-org/react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation } from "@tanstack/react-query"
 import { useActiveWallet } from "thirdweb/react"
 
 import { buyNftTabs } from "@/config/buyNft"
@@ -19,6 +20,13 @@ import { useModalStore, useUserStore } from "@/stores"
 
 import BuyNftCard from "./BuyNftCard"
 import TabContent from "./TabContent"
+
+type GuildedSignaturePayload = {
+	buyer: string
+	tokenId: number
+	networkChainId: string
+}
+
 
 export default function BuyNFTDetails() {
 	const [selectedTab, setSelectedTab] = useState("studio")
@@ -55,6 +63,26 @@ export default function BuyNFTDetails() {
 		staleTime: 1000 * 60 * 60 * 24
 	})
 
+	const {mutate: getGuildedSignature, data: signatureData, isPending} = useMutation({
+		 mutationFn: (payload: GuildedSignaturePayload) => fetchGuildedSignature(payload),
+		onSuccess: (data) => {
+			if (data) {
+				showCustomModal({
+					customModalType: BUY_NFT_MODAL,
+					tempCustomModalData: {
+						quantity:
+							nftDetail?.[0]?.initialSupply - nftDetails?.[0]?.quantityPurchased,
+						listingId: nftDetails[0].listingId,
+						maxPrice: data.maxPrice,
+						timestamp: data.timestamp,
+						signature: data.signature        
+					}
+				})
+			}
+		}
+	})
+	
+
 	// Use guilded NFT data if available and is a guilded NFT, otherwise use regular NFT data
 	const nftDetails = guildedNftData?.isGuildedNFT ? [guildedNftData] : regularNftData
 	const isNftDetailsFetching = isGuildedNftFetching || isRegularNftFetching
@@ -89,6 +117,15 @@ export default function BuyNFTDetails() {
 							toast.error(CONNECT_WALLET)
 							return
 						}
+
+						if(guildedNftData?.isGuildedNFT){
+							console.log("guildedNftData", guildedNftData)
+							getGuildedSignature({
+								buyer: walletAddress,
+								tokenId: nftDetails?.[0]?.tokenId,
+								networkChainId: process.env.NEXT_PUBLIC_TOKEN_CONTRACT_CHAIN ?? "1"
+							})
+						} else {	
 						showCustomModal({
 							customModalType: BUY_NFT_MODAL,
 							tempCustomModalData: {
@@ -99,6 +136,7 @@ export default function BuyNFTDetails() {
 								price: nftDetails?.[0]?.price
 							}
 						})
+						}
 					}}
 					isLoading={isNftDetailsFetching}
 					tokenId={nftDetails?.[0]?.tokenId}

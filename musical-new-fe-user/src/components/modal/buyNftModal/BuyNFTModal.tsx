@@ -110,9 +110,12 @@ export default function BuyNFTModal() {
 					onPress={() => {
 						if (isGuildedNFT) {
 							purchaseGuildedNFT({
-								listingId: tempCustomModalData?.listingId,
-								amount: quantity,
-								maticPrice: Number(tempCustomModalData?.maticPrice) * Number(quantity)
+								guildedListingId: tempCustomModalData.listingId,
+								maxPrice: String(
+									BigInt(tempCustomModalData.maxPrice) * BigInt(quantity)
+								),
+								timestamp: String(tempCustomModalData.timestamp),
+								signature: tempCustomModalData.signature
 							})
 						} else {
 							purchaseNFT({
