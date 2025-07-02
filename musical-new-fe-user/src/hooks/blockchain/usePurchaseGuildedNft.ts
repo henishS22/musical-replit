@@ -29,13 +29,15 @@ export const usePurchaseGuildedNft = () => {
 	})
 
 	const purchaseGuildedNFT = ({
-		listingId,
-		amount,
-		maticPrice
+		guildedListingId,
+		maxPrice,
+		timestamp,
+		signature
 	}: {
-		listingId: string
-		amount: string
-		maticPrice: number
+		guildedListingId: string
+		maxPrice: string
+		timestamp: string
+		signature: string
 	}) => {
 		if (!contract) {
 			console.error("Contract not initialized")
@@ -45,9 +47,14 @@ export const usePurchaseGuildedNft = () => {
 		const transaction = prepareContractCall({
 			contract,
 			method:
-				"function purchaseNFT(uint256 _listingId, uint256 _amount) payable",
-			params: [BigInt(listingId), BigInt(amount)],
-			value: toWei((maticPrice * Number(amount)).toString())
+				"function purchaseGuildedNFT(uint256 _guildedListingId, uint256 _maxPrice, uint256 _timestamp, bytes calldata _signature)",
+			params: [
+				BigInt(guildedListingId),
+				BigInt(maxPrice),
+				BigInt(timestamp),
+				signature
+			],
+			value: BigInt(maxPrice)
 		})
 		sendTx(transaction)
 	}
