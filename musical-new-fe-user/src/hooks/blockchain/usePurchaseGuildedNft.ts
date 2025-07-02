@@ -1,3 +1,4 @@
+
 "use client"
 
 import { defineChain, getContract, prepareContractCall, toWei } from "thirdweb"
@@ -34,12 +35,12 @@ export const usePurchaseGuildedNft = () => {
 
 	const purchaseGuildedNFT = async ({
 		listingId,
-		nftDetails,
+		nftId,
 		networkChainId,
 		maticPrice
 	}: {
 		listingId: string
-		nftDetails: any
+		nftId: string
 		networkChainId: string
 		maticPrice?: number
 	}) => {
@@ -48,8 +49,8 @@ export const usePurchaseGuildedNft = () => {
 			return
 		}
 
-		if (!listingId || !nftDetails?.tokenId || !networkChainId) {
-			toast.error("Missing required parameters: listingId, tokenId, or networkChainId")
+		if (!listingId || !nftId || !networkChainId) {
+			toast.error("Missing required parameters: listingId, nftId, or networkChainId")
 			return
 		}
 
@@ -59,6 +60,16 @@ export const usePurchaseGuildedNft = () => {
 		}
 
 		try {
+			// First fetch the NFT details to get the tokenId
+			const nftDetails = await apiRequest({
+				url: `guilded-nft/getGuildedNftsById/${nftId}`,
+				method: "GET"
+			});
+
+			if (!nftDetails || !nftDetails.tokenId) {
+				throw new Error("Failed to fetch NFT details or tokenId not found")
+			}
+
 			// Call the signature API to get signature, timestamp, and maxPrice using apiRequest helper
 			const signatureData = await apiRequest({
 				url: "guilded-nft/signature",

@@ -26,6 +26,7 @@ interface BuyNftCardProps {
 	onBuyNow?: () => void
 	isLoading?: boolean
 	tokenId: string
+	nftId?: string
 	price?: string
 	content?: React.ReactNode
 	unlockText?: {
@@ -50,6 +51,7 @@ export default function BuyNftCard({
 	description,
 	price,
 	tokenId,
+	nftId,
 	onBuyNow,
 	isLoading = false,
 	content,
