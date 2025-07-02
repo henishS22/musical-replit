@@ -395,11 +395,9 @@ export class GuildedNftService {
     );
 
     const result = {
-      data: {
-        signature,
-        timestamp,
-        maxPrice,
-      }
+      signature,
+      timestamp,
+      maxPrice,
     };
 
     return result;
