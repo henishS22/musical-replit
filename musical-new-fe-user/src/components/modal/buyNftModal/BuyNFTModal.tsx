@@ -28,6 +28,9 @@ export default function BuyNFTModal() {
 	const currentError = isGuildedNFT ? guildedError : error
 	const currentData = isGuildedNFT ? guildedData : data
 
+	console.log("BuyNFTModal - isGuildedNFT:", isGuildedNFT)
+	console.log("BuyNFTModal - tempCustomModalData:", tempCustomModalData)
+
 	useEffect(() => {
 		if (currentError) {
 			if (currentError.message?.includes("Execution Reverted"))

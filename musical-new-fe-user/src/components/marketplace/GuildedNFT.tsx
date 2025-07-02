@@ -142,7 +142,16 @@ const GuildedNFT: React.FC<GuildedNFTProps> = ({ showAll = false, onViewAll }) =
 							key={nft._id || index}
 							className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"
 							isPressable
-							onPress={() => handleNftClick(nft._id)}
+							onPress={() =>
+						showCustomModal(BUY_NFT_MODAL, {
+							listingId: nft.listingId,
+							tokenId: nft.tokenId,
+							quantity: nft.initialSupply || 1,
+							price: nft.price,
+							chainId: nft.chainId,
+							isGuildedNFT: true
+						})
+					}
 						>
 							<CardBody className="p-0">
 								<Image
