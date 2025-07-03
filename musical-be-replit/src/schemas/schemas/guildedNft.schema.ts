@@ -89,6 +89,9 @@ export class GuildedNft {
 
     @Prop({ required: false })
     priceInUsd: Number;
+
+    @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+    seller?: ForeignKeyField<User>;
 }
 
 export const GuildedNftSchema = SchemaFactory.createForClass(GuildedNft);

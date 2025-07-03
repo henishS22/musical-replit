@@ -1,12 +1,13 @@
 "use client"
 
-import { fetchNftsByUser } from "@/app/api/query"
+import { fetchNftsByUser, fetchOwnedGuildedPasses } from "@/app/api/query"
 import { TokenInsights } from "@/components/dashboard/insights/token-insights"
 import { useQuery } from "@tanstack/react-query"
 
 import { useUserStore } from "@/stores"
 
 import MadeNFTSection from "./MadeNftSection"
+import GuildedPassSection from "./GuildedPassSection"
 
 const TokenTab: React.FC = () => {
 	const { userData } = useUserStore()
@@ -15,6 +16,12 @@ const TokenTab: React.FC = () => {
 		queryKey: ["nftsByUser"],
 		queryFn: fetchNftsByUser,
 		staleTime: 1000 * 60 * 60 * 24,
+		enabled: !!userData?._id
+	})
+
+	const { data: ownedGuildedPasses, isFetching: isFetchingGuildedPasses } = useQuery({
+		queryKey: ["ownedGuildedPasses"],
+		queryFn: fetchOwnedGuildedPasses,
 		enabled: !!userData?._id
 	})
 
@@ -39,6 +46,10 @@ const TokenTab: React.FC = () => {
 				loading={isFetching}
 				viewMode="slider"
 				basePath="/exchange-nft"
+			/>
+			<GuildedPassSection
+				passes={ownedGuildedPasses?.data}
+				loading={isFetchingGuildedPasses}
 			/>
 		</div>
 	)

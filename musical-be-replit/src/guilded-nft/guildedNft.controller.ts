@@ -70,6 +70,13 @@ export class GuildedNftController {
     return this.guildedNftService.signature(owner, signDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('/owned')
+  async getOwnedNft(
+    @Param('owner') owner: string,
+  ) {
+    return this.guildedNftService.getOwnedNft(owner);
+  }
 }
 
 

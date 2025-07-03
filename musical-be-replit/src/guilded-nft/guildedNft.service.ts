@@ -219,7 +219,7 @@ export class GuildedNftService {
     try {
       console.log('into handleGuildedNftPurchased');
 
-      const { decoded } = data ?? {};
+      const { decoded, transaction_hash } = data ?? {};
 
       const { name, indexed_params, non_indexed_params } = decoded;
       const { listingId, tokenId, buyer } = non_indexed_params;
@@ -251,6 +251,9 @@ export class GuildedNftService {
         initialSupply: 1,
         wallet: buyer?.toLowerCase(),
         user: new ObjectId(userData._id.toString()),
+        purchaseTxnHash: transaction_hash,
+        txnHash: previousNft?.transactionHash,
+        seller: previousNft?.user,
       };
 
       console.log('nftObj:', nftObj);
@@ -402,5 +405,24 @@ export class GuildedNftService {
     };
 
     return result;
+  }
+
+  async getOwnedNft(owner: string) {
+    const nfts = await this.guildedNftModel.find({
+      user: new ObjectId(owner),
+    })
+      .populate({
+        path: 'user',
+        select: 'name profile_img _id',
+        model: 'User',
+      })
+      .populate({
+        path: 'seller',
+        select: 'name profile_img _id',
+        model: 'User',
+      })
+      .sort({ createdAt: -1 });
+
+    return { data: nfts };
   }
 }

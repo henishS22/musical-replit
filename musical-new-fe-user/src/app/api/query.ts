@@ -1112,3 +1112,11 @@ export const fetchReListedNfts = async (queryParams = "") => {
 	})
 	return response?.data
 }
+
+export const fetchOwnedGuildedPasses = async () => {
+	const response = await apiRequest<ApiResponse<NftListResponse>>({
+		url: `/guilded-nft/owned`,
+		method: "GET"
+	})
+	return response?.data
+}

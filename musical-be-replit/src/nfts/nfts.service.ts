@@ -3025,7 +3025,12 @@ export class NftsService {
     } = verifyTokenOwnershipDto || {};
 
     try {
-      const ERC1155_ABI = ["function balanceOf(address account, uint256 id) view returns (uint256)",];
+      const ERC1155_ABI = [
+        "function balanceOf(address account, uint256 id) view returns (uint256)",
+      ];
+      const GUILDED_ABI = [
+        "function userGuildedTokenBalance(address) view returns (uint256)"
+      ];
 
       const chainRpcMap = {
         84532: "https://sepolia.base.org",
@@ -3039,10 +3044,23 @@ export class NftsService {
       const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
       const walletAddress = ethers.utils.verifyMessage(message, signature);
 
+      // First, check regular NFT ownership
       const contract = new ethers.Contract(process.env.TOKEN_CONTRACT_ADDRESS, ERC1155_ABI, provider);
       const balance = await contract.balanceOf(walletAddress, tokenId);
       const balanceAsNumber = balance?.toNumber?.() || 0;
-      const isOwner = !!balanceAsNumber;
+      let isOwner = !!balanceAsNumber;
+
+      // If not owner, check Guilded token ownership
+      if (!isOwner) {
+        const guildedContract = new ethers.Contract(
+          process.env.GUILDED_TOKEN_CONTRACT_ADDRESS,
+          GUILDED_ABI,
+          provider
+        );
+        const guildedBalance = await guildedContract.userGuildedTokenBalance(walletAddress);
+        const guildedBalanceAsNumber = guildedBalance?.toNumber?.() || 0;
+        isOwner = !!guildedBalanceAsNumber;
+      }
 
       return { isOwner };
 
