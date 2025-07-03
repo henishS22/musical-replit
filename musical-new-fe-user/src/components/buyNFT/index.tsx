@@ -63,29 +63,32 @@ export default function BuyNFTDetails() {
 		staleTime: 1000 * 60 * 60 * 24
 	})
 
-	const {mutate: getGuildedSignature, data: signatureData, isPending} = useMutation({
-		 mutationFn: (payload: GuildedSignaturePayload) => fetchGuildedSignature(payload),
+	// Use guilded NFT data if available and is a guilded NFT, otherwise use regular NFT data
+	const nftDetails = guildedNftData?.isGuildedNFT ? [guildedNftData] : regularNftData
+	const isNftDetailsFetching = isGuildedNftFetching || isRegularNftFetching
+
+	const { mutate: getGuildedSignature, isPending } = useMutation({
+		mutationFn: (payload: GuildedSignaturePayload) => fetchGuildedSignature(payload),
 		onSuccess: (data) => {
 			if (data) {
 				showCustomModal({
 					customModalType: BUY_NFT_MODAL,
 					tempCustomModalData: {
 						quantity:
-							nftDetail?.[0]?.initialSupply - nftDetails?.[0]?.quantityPurchased,
+							nftDetails?.[0]?.initialSupply - nftDetails?.[0]?.quantityPurchased,
 						listingId: nftDetails[0].listingId,
 						maxPrice: data.maxPrice,
 						timestamp: data.timestamp,
-						signature: data.signature        
+						signature: data.signature,
+						isGuildedNFT: true
 					}
 				})
 			}
 		}
 	})
-	
 
-	// Use guilded NFT data if available and is a guilded NFT, otherwise use regular NFT data
-	const nftDetails = guildedNftData?.isGuildedNFT ? [guildedNftData] : regularNftData
-	const isNftDetailsFetching = isGuildedNftFetching || isRegularNftFetching
+
+
 
 	// Filter tabs based on user presence
 	const filteredTabs = user
@@ -112,30 +115,30 @@ export default function BuyNFTDetails() {
 					title={nftDetails?.[0]?.title || ""}
 					description={nftDetails?.[0]?.description || ""}
 					price={`$ ${nftDetails?.[0]?.priceInUsd?.toFixed(2) || "0.00"}` || "0.00 USD"}
+					buyLoading={isPending}
 					onBuyNow={() => {
 						if (!activeWallet) {
 							toast.error(CONNECT_WALLET)
 							return
 						}
 
-						if(guildedNftData?.isGuildedNFT){
-							console.log("guildedNftData", guildedNftData)
+						if (guildedNftData?.isGuildedNFT) {
 							getGuildedSignature({
 								buyer: walletAddress,
 								tokenId: nftDetails?.[0]?.tokenId,
 								networkChainId: process.env.NEXT_PUBLIC_TOKEN_CONTRACT_CHAIN ?? "1"
 							})
-						} else {	
-						showCustomModal({
-							customModalType: BUY_NFT_MODAL,
-							tempCustomModalData: {
-								quantity:
-									nftDetails?.[0]?.initialSupply -
-									nftDetails?.[0]?.quantityPurchased,
-								listingId: nftDetails?.[0]?.listingId,
-								price: nftDetails?.[0]?.price
-							}
-						})
+						} else {
+							showCustomModal({
+								customModalType: BUY_NFT_MODAL,
+								tempCustomModalData: {
+									quantity:
+										nftDetails?.[0]?.initialSupply -
+										nftDetails?.[0]?.quantityPurchased,
+									listingId: nftDetails?.[0]?.listingId,
+									price: nftDetails?.[0]?.price
+								}
+							})
 						}
 					}}
 					isLoading={isNftDetailsFetching}

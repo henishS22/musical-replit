@@ -1,7 +1,7 @@
 
 "use client"
 
-import { defineChain, getContract, prepareContractCall, toWei } from "thirdweb"
+import { defineChain, getContract, prepareContractCall } from "thirdweb"
 import { useSendTransaction } from "thirdweb/react"
 
 import { client } from "@/config"

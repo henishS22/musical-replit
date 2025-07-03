@@ -17,6 +17,7 @@ import NFTCard from "../profile/tokenTab/NftCard"
 import BuyNftCardSkeleton from "./NFTCardSkeleton"
 
 interface BuyNftCardProps {
+	buyLoading?: boolean,
 	imageUrl: StaticImageData | string
 	creatorImage?: StaticImageData | string
 	creatorName: string
@@ -61,7 +62,8 @@ export default function BuyNftCard({
 	ownedNftImageUrl,
 	ownedCreatorImage,
 	ownedCreatorName,
-	ownedNftTitle
+	ownedNftTitle,
+	buyLoading
 }: BuyNftCardProps) {
 	const [isLoadingUnlock, setIsLoadingUnlock] = useState(false)
 	const activeWallet = useActiveWallet()
@@ -190,6 +192,7 @@ export default function BuyNftCard({
 								isDisabled={
 									isLoadingUnlock || isPending || ownerId === userData?._id
 								}
+								isLoading={buyLoading}
 							>
 								Buy Now
 							</Button>
