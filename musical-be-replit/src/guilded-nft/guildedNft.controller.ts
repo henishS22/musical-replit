@@ -17,14 +17,13 @@ export class GuildedNftController {
 
   @Get('/')
   async getNfts(
-    @Query('userId') userId: string,
     @Query('offset') offset: string,
     @Query('page') page: string,
     @Query('limit') limit: string,
     @Query('isListed') isListed: string,
   ) {
     return this.guildedNftService.getNfts({
-      userId,
+      userId: '',
       offset,
       page,
       limit,

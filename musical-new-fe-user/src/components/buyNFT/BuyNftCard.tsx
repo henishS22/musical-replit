@@ -41,6 +41,7 @@ interface BuyNftCardProps {
 	ownedCreatorImage?: StaticImageData | string
 	ownedCreatorName?: string
 	ownedNftTitle?: string
+	isGuildedNFT?: boolean
 }
 
 export default function BuyNftCard({
@@ -63,7 +64,8 @@ export default function BuyNftCard({
 	ownedCreatorImage,
 	ownedCreatorName,
 	ownedNftTitle,
-	buyLoading
+	buyLoading,
+	isGuildedNFT = false
 }: BuyNftCardProps) {
 	const [isLoadingUnlock, setIsLoadingUnlock] = useState(false)
 	const activeWallet = useActiveWallet()
@@ -198,7 +200,7 @@ export default function BuyNftCard({
 							</Button>
 						)}
 
-						{showVerifyButton && (
+						{showVerifyButton && !isGuildedNFT && (
 							<p className="font-medium text-[18px] leading-[32px] tracking-[-0.02em] mt-2 text-textGray flex items-center gap-2">
 								Already own this token?{" "}
 								<Button

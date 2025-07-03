@@ -33,14 +33,13 @@ export class GuildedNftService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly coinflowService: CoinflowService,
     private readonly nftsService: NftsService,
-  ) {}
+  ) { }
 
   //api list for user and guilded nft list
   async getNfts(getNftsDto: GetGuildedNftsDto) {
     const {
       page = '1',
       limit = '10',
-      userId = '',
       isListed = true,
     } = getNftsDto || {};
 
@@ -58,21 +57,16 @@ export class GuildedNftService {
     const offset = (pageAsInt - 1) * limitAsInt;
 
     let matchFilter: any;
-    if (userId) {
-      matchFilter = {
-        user: new ObjectId(userId),
-      };
-    } else {
-      matchFilter = {
-        tokenId: { $exists: true },
-        listingId: { $exists: true },
-        bought: false,
-        isRegisterForAirDrop: false,
-        isFirstTimeBuy: true,
-        ...(isListed ? { listingId: { $exists: true } } : {}),
-        ...(userId ? { user: new ObjectId(userId) } : {}),
-      };
-    }
+
+    matchFilter = {
+      tokenId: { $exists: true },
+      listingId: { $exists: true },
+      bought: false,
+      isRegisterForAirDrop: false,
+      isFirstTimeBuy: true,
+      ...(isListed ? { listingId: { $exists: true } } : {}),
+    };
+
 
     const total = await this.guildedNftModel.countDocuments(matchFilter);
     const pages = Math.ceil(total / limitAsInt);
@@ -114,9 +108,16 @@ export class GuildedNftService {
   }
 
   async getNftsById(nftId: string) {
-    const nft = await this.guildedNftModel.findOne({
-      _id: new ObjectId(nftId),
-    });
+    const nft = await this.guildedNftModel
+      .findOne({
+        _id: new ObjectId(nftId),
+      })
+      .populate({
+        path: 'user',
+        select: 'name profile_img _id',
+        model: 'User',
+      });
+
     if (!nft) {
       return resourceNotFoundError('NFT');
     }

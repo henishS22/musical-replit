@@ -148,6 +148,7 @@ export default function BuyNFTDetails() {
 					showVerifyButton={true}
 					ownerId={nftDetails?.[0]?.user?._id}
 					txHash={nftDetails?.[0]?.transactionHash}
+					isGuildedNFT={nftDetails?.[0]?.isGuildedNFT}
 				/>
 				{!nftDetails?.[0]?.isGuildedNFT && (
 					<div className="bg-white rounded-xl shadow-lg">
