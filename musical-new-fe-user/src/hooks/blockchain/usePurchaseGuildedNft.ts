@@ -9,9 +9,9 @@ import { client } from "@/config"
 const contract = getContract({
 	client,
 	chain: defineChain(
-		Number(process.env.NEXT_PUBLIC_GUILDED_MARKETPLACE_CONTRACT_CHAIN) || 84532
+		84532
 	),
-	address: process.env.NEXT_PUBLIC_GUILDED_MARKETPLACE_CONTRACT_ADDRESS || ""
+	address: '0x067578da19fD94c8F1c9A8CEBbcC8ADB6421dae4'
 })
 
 export const usePurchaseGuildedNft = () => {
@@ -47,7 +47,7 @@ export const usePurchaseGuildedNft = () => {
 		const transaction = prepareContractCall({
 			contract,
 			method:
-				"function purchaseGuildedNFT(uint256 _guildedListingId, uint256 _maxPrice, uint256 _timestamp, bytes calldata _signature)",
+				"function purchaseGuildedNFT(uint256 _guildedListingId, uint256 _maxPrice, uint256 _timestamp, bytes _signature) payable",
 			params: [
 				BigInt(guildedListingId),
 				BigInt(maxPrice),

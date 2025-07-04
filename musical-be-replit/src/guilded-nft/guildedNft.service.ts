@@ -89,10 +89,11 @@ export class GuildedNftService {
 
     const prices = await this.nftsService.getCoinMarketCapPrices();
 
+    const guildedNftUsdPrice = Number(process.env.GUILDED_NFT_PRICE_IN_USD || '499');
     nfts.forEach((nft: any) => {
       if (!nft.price) {
-        nft.ethereumPrice = Number(499 / prices?.ethereum);
-        nft.maticPrice = Number(499 / prices?.polygon);
+        nft.ethereumPrice = Number(guildedNftUsdPrice / prices?.ethereum);
+        nft.maticPrice = Number(guildedNftUsdPrice / prices?.polygon);
       }
     });
 
@@ -123,10 +124,11 @@ export class GuildedNftService {
     }
     const prices = await this.nftsService.getCoinMarketCapPrices();
 
+    const guildedNftUsdPrice = Number(process.env.GUILDED_NFT_PRICE_IN_USD || '499');
     if (nft.isFirstTimeBuy && nft.isGuildedNFT) {
-      nft.ethereumPrice = Number(499 / prices?.ethereum);
-      nft.maticPrice = Number(499 / prices?.polygon);
-      nft.priceInUsd = 499;
+      nft.ethereumPrice = Number(guildedNftUsdPrice / prices?.ethereum);
+      nft.maticPrice = Number(guildedNftUsdPrice / prices?.polygon);
+      nft.priceInUsd = guildedNftUsdPrice;
     }
 
     return nft;
@@ -252,7 +254,7 @@ export class GuildedNftService {
         wallet: buyer?.toLowerCase(),
         user: new ObjectId(userData._id.toString()),
         purchaseTxnHash: transaction_hash,
-        txnHash: previousNft?.transactionHash,
+        transactionHash: previousNft?.transactionHash,
         seller: previousNft?.user,
       };
 
@@ -340,10 +342,11 @@ export class GuildedNftService {
     const { buyer, tokenId, networkChainId } = signDto;
     const marketplace = '0x067578da19fD94c8F1c9A8CEBbcC8ADB6421dae4';
     const privateKey =
-      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+      '0x8f84957b1f350af020cc385dd8008dbcdbc2ce1893f5442cafe25b916fe4437a';
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const price: any = await this.nftsService.price('499');
+    const guildedNftUsdPrice = Number(process.env.GUILDED_NFT_PRICE_IN_USD || '499');
+    const price: any = await this.nftsService.price(guildedNftUsdPrice.toString());
     const userNonce = await this.userNonce(networkChainId, buyer);
 
     let curr = 0;
@@ -353,7 +356,12 @@ export class GuildedNftService {
       curr = price?.matic;
     }
 
-    const maxPrice = ethers.utils.parseEther(curr.toString()).toString();
+    function toFixed18(num: number | string): string {
+      // Avoid scientific notation and limit to 18 decimals
+      return Number(num).toLocaleString('fullwide', { useGrouping: false, maximumFractionDigits: 18 });
+    }
+
+    const maxPrice = ethers.utils.parseEther(toFixed18(curr)).toString();
 
     // console.log("buyer:", buyer, typeof buyer);
     // console.log("tokenId:", tokenId, typeof tokenId);

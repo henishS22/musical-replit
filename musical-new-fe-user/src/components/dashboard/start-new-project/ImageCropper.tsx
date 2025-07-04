@@ -20,12 +20,14 @@ interface ImageCropperProps {
 	imageFile: File
 	onSave: (croppedImage: File) => void
 	aspectRatio?: number
+	loading?: boolean
 }
 
 export function ImageCropper({
 	imageFile,
 	onSave,
-	aspectRatio = 1
+	aspectRatio = 1,
+	loading = false
 }: ImageCropperProps) {
 	const [crop, setCrop] = useState({ x: 0, y: 0 })
 	const [zoom, setZoom] = useState(1)
@@ -54,7 +56,6 @@ export function ImageCropper({
 				type: imageFile.type
 			})
 			onSave(croppedFile)
-			hideCustomModal()
 		}
 	}
 
@@ -102,6 +103,8 @@ export function ImageCropper({
 					<Button
 						onPress={handleSave}
 						className="bg-btnColor text-white font-medium py-2 px-4 rounded-lg"
+						isLoading={loading}
+						isDisabled={loading}
 					>
 						Save
 					</Button>

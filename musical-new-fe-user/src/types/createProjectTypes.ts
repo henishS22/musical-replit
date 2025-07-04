@@ -8,6 +8,7 @@ import {
 
 import { ProjectDataType } from "./dashboarApiTypes"
 import { CountryCode } from "./inviteTypes"
+import { ReactNode } from "react"
 
 export interface SectionHeaderProps {
 	color: string
@@ -65,7 +66,7 @@ export interface PreviewCardProps {
 }
 
 export type TooltipButtonProps = {
-	tooltipContent: string // Content for the tooltip
+	tooltipContent: React.ReactNode // Content for the tooltip
 	position?: TooltipProps["placement"] // Dynamic position for the tooltip
 }
 

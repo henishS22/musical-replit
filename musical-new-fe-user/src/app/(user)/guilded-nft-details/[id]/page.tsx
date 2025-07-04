@@ -1,9 +1,18 @@
 'use client'
 import { useParams, useRouter } from "next/navigation"
 import { useUserStore } from "@/stores"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Image from "next/image"
 import { PROFILE_IMAGE, POLYGONSCAN_LOGO } from "@/assets"
+import CustomTooltip from "@/components/ui/tooltip";
+import { updateUser } from "@/app/api/mutation";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { fetchOwnedGuildedPasses } from "@/app/api/query";
+import { ImageCropper } from "@/components/dashboard/start-new-project/ImageCropper";
+import { IMAGE_CROP_MODAL } from "@/constant/modalType";
+import { useModalStore } from "@/stores/modal";
+import React from "react";
 
 const POLYGONSCAN_URL = process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL || "https://polygonscan.com/tx/"
 
@@ -14,6 +23,7 @@ export default function GuildedNftDetailsPage() {
   // Get owned guilded passes from react-query cache
   const { data: ownedGuildedPasses } = useQuery({
     queryKey: ["ownedGuildedPasses"],
+    queryFn: fetchOwnedGuildedPasses,
     enabled: !!userData?._id
   })
 
@@ -34,6 +44,41 @@ export default function GuildedNftDetailsPage() {
     if (typeof window !== "undefined") router.replace("/profile")
     return null
   }
+
+  const queryClient = useQueryClient();
+  const { mutate: updateUserMutation, status: profileUpdateStatus } = useMutation({
+    mutationFn: (formData: FormData) => updateUser(formData, "image/profile"),
+    onSuccess: () => {
+      toast.success("Profile updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["userData"] });
+      hideCustomModal();
+      setRawImage(null);
+    },
+    onError: () => {
+      toast.error("Failed to update profile");
+    },
+  });
+
+  const { showCustomModal, customModalType, hideCustomModal } = useModalStore();
+  const [rawImage, setRawImage] = React.useState<File | null>(null);
+
+  const handleSetAsProfile = async () => {
+    try {
+      const response = await fetch(nft.artworkUrl);
+      const blob = await response.blob();
+      const file = new File([blob], "profile.jpg", { type: blob.type });
+      setRawImage(file);
+      showCustomModal({ customModalType: IMAGE_CROP_MODAL });
+    } catch (err) {
+      toast.error("Failed to fetch NFT artwork");
+    }
+  };
+
+  const handleCropSave = (croppedImage: File) => {
+    const formData = new FormData();
+    formData.append("file", croppedImage);
+    updateUserMutation(formData);
+  };
 
   return (
     <div className="min-h-screen relative">
@@ -78,6 +123,18 @@ export default function GuildedNftDetailsPage() {
                   <p className="font-medium text-[20px] leading-[32px] tracking-[-0.02em] text-[#6F767E]">
                     {nft?.description}
                   </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      className="bg-btnColor text-white px-4 py-2 rounded-lg text-[13px] hover:bg-btnColorHover font-bold"
+                      onClick={handleSetAsProfile}
+                      disabled={profileUpdateStatus === 'pending'}
+                    >
+                      Set as profile
+                    </button>
+                    <CustomTooltip tooltipContent={<span style={{ maxWidth: 220, display: 'block', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                      Set the artwork of this Guilded NFT as your profile picture with Guild Badge
+                    </span>} />
+                  </div>
                 </div>
                 <div>
                   {nft?.priceInUsd && (
@@ -115,6 +172,9 @@ export default function GuildedNftDetailsPage() {
           </div>
         </div>
       </div>
+      {rawImage && (
+        <ImageCropper imageFile={rawImage} onSave={handleCropSave} loading={profileUpdateStatus === 'pending'} />
+      )}
     </div>
   )
 } 

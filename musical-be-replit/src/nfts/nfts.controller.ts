@@ -229,7 +229,7 @@ export class NftsController {
           result = await this.nftsService.handleNftForExchangeRemoved(data);
           break;
 
-        case 'GuildedNftPurchased':
+        case 'GuildedNFTPurchased':
           result = await this.guildedNftService.handleGuildedNftPurchased(data);
           break;
 
