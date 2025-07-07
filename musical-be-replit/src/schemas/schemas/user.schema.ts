@@ -101,6 +101,9 @@ export class User {
   @Prop()
   profile_img: string;
 
+  @Prop({ required: false, default: false })
+  isGuildedProfileImage: boolean
+
   @Prop({
     type: [
       {

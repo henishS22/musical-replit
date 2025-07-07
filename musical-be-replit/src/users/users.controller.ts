@@ -232,7 +232,8 @@ export class UsersController {
     // @UploadedFile() file: ImageFileType,
     @Req() req: any
   ) {
-    let { file } = req.files
+    let { file, isGuildedProfileImage } = req.files
+    if (!isGuildedProfileImage) isGuildedProfileImage = false;
 
     if (file && file[0]) {
       file = file[0]
@@ -260,6 +261,7 @@ export class UsersController {
       return this.usersService.updateProfileImage({
         id: owner,
         file: imageTransportObj,
+        isGuildedProfileImage
       });
     } else {
       return await this.usersService.deleteProfileImage(owner);
@@ -325,6 +327,7 @@ export class UsersController {
     return this.usersService.updateCoverImage({
       id: owner,
       file: imageTransportObj,
+      isGuildedProfileImage: false
     });
   }
 

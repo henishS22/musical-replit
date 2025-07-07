@@ -115,7 +115,7 @@ export class GuildedNftService {
       })
       .populate({
         path: 'user',
-        select: 'name profile_img _id',
+        select: 'name profile_img isGuildedProfileImage _id',
         model: 'User',
       });
 
@@ -421,12 +421,12 @@ export class GuildedNftService {
     })
       .populate({
         path: 'user',
-        select: 'name profile_img _id',
+        select: 'name profile_img isGuildedProfileImage _id',
         model: 'User',
       })
       .populate({
         path: 'seller',
-        select: 'name profile_img _id',
+        select: 'name profile_img isGuildedProfileImage _id',
         model: 'User',
       })
       .sort({ createdAt: -1 });

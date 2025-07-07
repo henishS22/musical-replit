@@ -77,6 +77,7 @@ export default function GuildedNftDetailsPage() {
   const handleCropSave = (croppedImage: File) => {
     const formData = new FormData();
     formData.append("file", croppedImage);
+    formData.append("isGuildedProfileImage", "true");
     updateUserMutation(formData);
   };
 

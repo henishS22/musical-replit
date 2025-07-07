@@ -997,7 +997,7 @@ export class UsersService {
       const newUrl = uploadResult;
       const newProfile = this.userModel.findByIdAndUpdate(
         updateImageDto.id,
-        { profile_img: newUrl },
+        { profile_img: newUrl, isGuildedProfileImage: updateImageDto.isGuildedProfileImage },
         { new: true },
       );
 

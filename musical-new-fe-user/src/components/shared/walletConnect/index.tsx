@@ -83,22 +83,21 @@ function WalletAuth() {
 			wallets={wallets}
 			connectButton={{
 				label: (
-					<div className="flex gap-2 text-white">
+					<div className="flex items-center justify-center gap-2 text-white w-full h-full">
 						<span>
-							{" "}
 							<Plus color="#fff" />
-						</span>{" "}
-						Connect Wallet
+						</span>
+						<span>Connect Wallet</span>
 					</div>
 				),
-				className: "!bg-black !h-10"
+				className: "!bg-black !h-10 !flex !items-center !justify-center !text-white"
 			}}
 			connectModal={{
 				size: "compact",
 				showThirdwebBranding: false
 			}}
 			detailsButton={{
-				className: "!bg-black !text-white !font-bold !border-none !h-10"
+				className: "!bg-black !text-white !font-bold !border-none !h-10 !flex !items-center !justify-center"
 			}}
 			// onConnect={handleWalletConnect}
 			showAllWallets={false}

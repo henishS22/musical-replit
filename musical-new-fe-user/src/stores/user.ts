@@ -150,6 +150,7 @@ export interface UserInfoResponse {
 	cover_img: string | null
 	isDistroApproved?: boolean
 	firstTimeLogin?: boolean
+	isGuildedProfileImage?: boolean
 }
 
 export interface SubscriptionFeatureAvailability {

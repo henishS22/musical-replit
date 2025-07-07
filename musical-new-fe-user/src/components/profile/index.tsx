@@ -112,6 +112,13 @@ const Profile: React.FC = () => {
 					</div>
 					<div className="flex justify-end items-center font-manrope font-bold text-[32px] leading-[40px] tracking-[-0.03em] ml-[240px]">
 						{userData?.name}
+						{userData?.isGuildedProfileImage && (
+							<img
+								src="https://storage.googleapis.com/public-files-musical-dev-2/Guild%20Badge.svg"
+								alt="Guilded Badge"
+								style={{ width: 32, height: 32, marginLeft: 8, display: 'inline-block', verticalAlign: 'middle' }}
+							/>
+						)}
 					</div>
 					<span className="flex gap-2">
 						<Button

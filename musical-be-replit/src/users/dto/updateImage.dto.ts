@@ -4,7 +4,7 @@
  *  @exports UpdateImageDto
  */
 
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { TransportImageType } from '../utils/types';
 
 //Based on
@@ -17,4 +17,7 @@ export class UpdateImageDto {
 
   @IsNotEmpty()
   file: TransportImageType;
+
+  @IsOptional()
+  isGuildedProfileImage: boolean
 }
