@@ -103,7 +103,10 @@ const Profile: React.FC = () => {
 						<div className=" w-[198px] h-[198px]">
 							<Image
 								src={userData?.profile_img || PROFILE_IMAGE}
-								className="object-contain shrink-0 self-stretch my-auto aspect-[1.09] w-[198px] rounded-full h-[198px] border-4 border-white outline outline-2 outline-gray-300"
+								className={`object-contain shrink-0 self-stretch my-auto aspect-[1.09] w-[198px] rounded-full h-[198px] border-4 border-white ${userData?.isGuildedProfileImage
+									? 'outline outline-[5px] outline-[#FFCC33]'
+									: 'outline outline-2 outline-gray-300'
+									}`}
 								alt="profile"
 								width={198}
 								height={198}
@@ -112,13 +115,6 @@ const Profile: React.FC = () => {
 					</div>
 					<div className="flex justify-end items-center font-manrope font-bold text-[32px] leading-[40px] tracking-[-0.03em] ml-[240px]">
 						{userData?.name}
-						{userData?.isGuildedProfileImage && (
-							<img
-								src="https://storage.googleapis.com/public-files-musical-dev-2/Guild%20Badge.svg"
-								alt="Guilded Badge"
-								style={{ width: 32, height: 32, marginLeft: 8, display: 'inline-block', verticalAlign: 'middle' }}
-							/>
-						)}
 					</div>
 					<span className="flex gap-2">
 						<Button

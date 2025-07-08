@@ -59,7 +59,10 @@ const ViewProfile: React.FC = () => {
 						<div className=" w-[198px] h-[198px]">
 							<Image
 								src={userDetails?.profile_img || PROFILE_IMAGE}
-								className="object-contain shrink-0 self-stretch my-auto aspect-[1.09] w-[198px] rounded-full h-[198px] border-4 border-white outline outline-2 outline-gray-300"
+								className={`object-contain shrink-0 self-stretch my-auto aspect-[1.09] w-[198px] rounded-full h-[198px] border-4 border-white ${userDetails?.isGuildedProfileImage
+									? 'outline outline-[5px] outline-[#FFCC33]'
+									: 'outline outline-2 outline-gray-300'
+									}`}
 								alt="profile"
 								width={198}
 								height={198}
