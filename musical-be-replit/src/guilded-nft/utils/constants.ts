@@ -1,7 +1,0 @@
-export const DISTRO = {
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-  PENDING: 'PENDING',
-};
-
-
